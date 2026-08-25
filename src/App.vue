@@ -6,7 +6,8 @@
 
   <!-- <HelloWorld /> -->
 
-  <div>
+
+  <!-- <div>
     <button class="btn">按钮</button>
   </div>
 
@@ -16,8 +17,11 @@
 
   <span>
     <button class="bg-purple-500">按钮</button>
-  </span>
+  </span> -->
   
+  <router-view></router-view>
+
+
 <!-- 
   <div class="button-row">
     <el-button>Default</el-button>
