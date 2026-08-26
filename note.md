@@ -22,8 +22,25 @@ https://windicss.org
 
 
 
+https://element-plus.org/zh-CN/component/notification.html#%E4%B8%8D%E5%90%8C%E7%B1%BB%E5%9E%8B%E7%9A%84%E9%80%9A%E7%9F%A5
+
+[axios中文网|axios API 中文文档 | axios](http://www.axios-js.com/zh-cn/)
+
+
+
+[@vueuse/integrations | VueUse](https://vueuse.org/integrations/README.html)
+
+[useCookies | VueUse](https://vueuse.org/integrations/useCookies/#usecookies)
+
+
+
 ```text
 npm install @element-plus/icons-vue
+
+npm install axios
+
+npm i @vueuse/integrations
+npm i universal-cookie@^7
 
 ```
 
@@ -457,5 +474,990 @@ enum Status {
   Success,
   Error
 }
+```
+
+| 属性              | 作用                             | 示例                         |
+| :---------------- | :------------------------------- | :--------------------------- |
+| **无属性**        | 全局样式                         | `<style>`                    |
+| `scoped`          | 样式仅作用于当前组件             | `<style scoped>`             |
+| `module`          | CSS Modules，生成哈希类名        | `<style module>`             |
+| `lang`            | 指定预处理器（scss/less/stylus） | `<style lang="scss">`        |
+| `src`             | 从外部文件导入样式               | `<style src="./style.css">`  |
+| `scoped` + `lang` | 组合使用                         | `<style scoped lang="scss">` |
+| `module` + `lang` | 组合使用                         | `<style module lang="scss">` |
+
+| 对比     | 传统 `setup()`      | `<script setup>` |
+| :------- | :------------------ | :--------------- |
+| 代码量   | 多（需要 `return`） | 少（自动暴露）   |
+| 性能     | 一般                | 更好（编译优化） |
+| 推荐度   | 不推荐（Vue 3.2+）  | ✅ **强烈推荐**   |
+| 使用场景 | 旧项目维护          | 所有新项目       |
+
+
+
+
+
+```text
+//ref vs 普通变量
+
+<script setup>
+import { ref } from 'vue'
+
+// 普通变量：修改后页面不会更新 ❌
+let count = 0
+const update = () => {
+  count++  // 数据变了，但页面不会变
+}
+
+// ref 变量：修改后页面自动更新 ✅
+const count2 = ref(0)
+const update2 = () => {
+  count2.value++  // 数据变，页面自动更新
+}
+</script>
+```
+
+```text
+为什么写 <hello-world/> 而不是 <HelloWorld/>？
+
+
+两种写法都可以，Vue 支持组件在模板中使用两种命名方式。
+
+
+写法对比：
+<HelloWorld />   ✅ 大驼峰（PascalCase）
+<hello-world />  ✅ 短横线（kebab-case）
+
+
+为什么 Vue 支持两种写法？
+1. HTML 标签名不区分大小写
+2. Vue 编译时会自动将大驼峰转换为短横线形式
+3. 短横线是 HTML 自定义标签的官方推荐格式
+
+
+内部转换过程：
+HelloWorld.vue → <HelloWorld /> → 编译后 <hello-world /> → 浏览器识别
+
+
+推荐写法：
+<HelloWorld />   ✅ 更推荐，与组件名一致，便于搜索和识别
+<hello-world />  ✅ 也可以，更符合 HTML 标准
+
+
+总结：
+大驼峰短横线，Vue 自动互转换
+推荐用大驼峰，清晰明了不混淆
+```
+
+| 对比项           | `ref`                               | `reactive`                          |
+| :--------------- | :---------------------------------- | :---------------------------------- |
+| **适用数据类型** | 任意类型（基本类型 + 对象/数组）    | 仅对象（Object、Array、Map、Set）   |
+| **访问方式**     | JS 中需要 `.value`                  | 直接访问属性，不需要 `.value`       |
+| **模板中使用**   | 自动解包，不需要 `.value`           | 直接使用                            |
+| **重新赋值**     | ✅ 可以整体替换（`count.value = 0`） | ❌ 不能整体替换对象，会丢失响应式    |
+| **解构**         | ❌ 解构会丢失响应式                  | ❌ 解构会丢失响应式（需用 `toRefs`） |
+| **本质**         | 包装对象 `{ value: ... }`           | 直接代理原始对象                    |
+| **适用场景**     | 基本类型数据、需要整体替换的数据    | 复杂对象、表单数据                  |
+
+
+
+
+
+
+
+| 属性        | 作用               | 绑定对象     | 示例             |
+| :---------- | :----------------- | :----------- | :--------------- |
+| **`model`** | 表单的**数据对象** | 表单数据     | `:model="form"`  |
+| **`rules`** | 表单的**验证规则** | 验证规则对象 | `:rules="rules"` |
+
+​        <el-form :rules="rules" :model="form" class="w-[250px] flex flex-col items-center justify-center  ">
+
+
+
+
+
+```text
+v-slot 是什么？ prefix 是什么意思？
+
+
+一、v-slot 是什么？
+
+v-slot 是 Vue 中用于插槽（Slot）的指令，用来向组件内部传递自定义内容。
+
+一句话理解：v-slot 让你可以把内容插入到组件预先留好的"坑位"里。
+
+
+基本用法：
+
+子组件预留插槽：
+<template>
+  <div class="card">
+    <header>
+      <slot name="header"></slot>    ← 名叫 header 的坑位
+    </header>
+    <main>
+      <slot></slot>                  ← 默认插槽（没名字）
+    </main>
+    <footer>
+      <slot name="footer"></slot>    ← 名叫 footer 的坑位
+    </footer>
+  </div>
+</template>
+
+父组件填充插槽：
+<template>
+  <Card>
+    <template #header>              ← #header = v-slot:header
+      <h1>这是标题</h1>
+    </template>
+    
+    <p>这是主体内容</p>              ← 默认插槽
+    
+    <template #footer>              ← #footer = v-slot:footer
+      <span>页脚信息</span>
+    </template>
+  </Card>
+</template>
+
+
+二、prefix 是什么意思？
+
+prefix 是插槽的名字，意思是"前缀"（前面的位置）。
+
+在 Element Plus 中：
+<el-input v-model="text">
+  <template #prefix>               ← #prefix = v-slot:prefix
+    <el-icon><User /></el-icon>    ← 图标显示在输入框前面
+  </template>
+</el-input>
+
+含义拆解：
+prefix = 插槽名称，表示"前面的位置"
+#prefix = v-slot:prefix 的简写
+效果 = 图标显示在输入框的左侧/前面
+
+
+常见插槽名：
+default   → 默认位置
+prefix    → 前缀（前面/左边）
+suffix    → 后缀（后面/右边）
+header    → 头部（顶部）
+footer    → 底部
+prepend   → 前置（最前面）
+append    → 后置（最后面）
+
+
+插槽写法对比：
+#prefix          = v-slot:prefix        （具名插槽简写）
+#default         = v-slot:default       （默认插槽）
+<template #header> = v-slot:header      （完整 vs 简写）
+
+
+# 不是 id！
+
+CSS 中    #app    = id 选择器
+Vue 中    #prefix = v-slot 简写（完全不同！）
+
+
+总结：
+v-slot 是填坑指令，prefix 是前缀插槽名
+# 号是简写，往组件里塞内容
+prefix 放输入框前面，suffix 放后面
+```
+
+```text
+回调函数是什么？
+
+
+一、回调函数是什么？
+
+回调函数：把一个函数当作参数传给另一个函数，让它在合适的时机被调用执行。
+
+
+二、判断哪个是回调函数？
+
+判断标准：看哪个函数是作为参数传进去的。
+
+function1(function2())  
+          ↑
+    function2 是作为参数传进去的 → 它是回调函数
+    function1 接收了函数参数 → 它是高阶函数，不是回调函数
+
+
+三、角色对照表
+
+函数         是否作为参数传入          角色名称
+function1    ❌ 不是（它接收别人）    高阶函数（不是回调函数）
+function2    ✅ 是（被传给 function1） 回调函数
+
+
+四、生活中的比喻
+
+去餐厅吃饭，点完菜后告诉服务员："菜做好了叫我"。
+
+"叫我" = 回调函数（提前告诉服务员怎么通知我）
+服务员 = 高阶函数（接收"怎么叫我"这个指令）
+菜做好了 = 触发时机（条件满足时执行"叫我"）
+
+
+五、常见场景示例
+
+// 1. 点击事件
+button.addEventListener('click', function() {
+  // ↑ 这个匿名函数是回调函数
+  console.log('点击了')
+})
+// ↑ addEventListener 是接收回调的函数（高阶函数）
+
+
+// 2. 定时器
+setTimeout(function() {
+  // ↑ 这个函数是回调函数
+  console.log('1秒后执行')
+}, 1000)
+// ↑ setTimeout 是接收回调的函数（高阶函数）
+
+
+// 3. 数组遍历
+[1, 2, 3].forEach(function(item) {
+  // ↑ 这个函数是回调函数
+  console.log(item)
+})
+// ↑ forEach 是接收回调的函数（高阶函数）
+
+
+// 4. Vue 中的生命周期
+onMounted(() => {
+  // ↑ 这个箭头函数是回调函数
+  console.log('组件挂载完成')
+})
+// ↑ onMounted 是接收回调的函数（高阶函数）
+
+
+六、记住
+
+被传进去的那个 → 回调函数
+接收别人传进来的那个 → 高阶函数（不是回调函数）
+```
+
+| 对比              | Element UI               | Element Plus             |
+| :---------------- | :----------------------- | :----------------------- |
+| **配套 Vue 版本** | Vue 2                    | Vue 3                    |
+| **是否官方**      | ✅ 都是饿了么团队官方维护 | ✅ 都是饿了么团队官方维护 |
+| **组件**          | 基本一样（70+ 组件）     | 基本一样（70+ 组件）     |
+| **API 风格**      | Options API              | Composition API          |
+| **TypeScript**    | 有限支持                 | 完整支持                 |
+| **目前状态**      | 维护中，不再新增功能     | 活跃开发，主推版本       |
+
+```md
+// 1. JavaScript 对象（你的代码里写的）
+const rules = {
+  username: [
+    { required: true, message: '用户名不能为空' }
+  ]
+}
+// ↑ 这是在 JS 代码中直接声明的对象/数组
+
+// 2. JSON 字符串（网络传输用）
+const jsonString = '{"username":[{"required":true,"message":"用户名不能为空"}]}'
+// ↑ 这是纯文本，用于发送到服务器或从服务器接收
+
+// 3. 转换
+JSON.parse(jsonString)   // JSON → JS 对象
+JSON.stringify(rules)    // JS 对象 → JSON 字符串
+
+//JS 对象写代码，属性名不加引号；
+//JSON 是字符串，属性名必须双引号。
+//长得像但不是，一个在代码一个在传输。
+
+```
+
+| 报文类型                 | 方向            | 内容                                      |
+| :----------------------- | :-------------- | :---------------------------------------- |
+| **请求报文（Request）**  | 浏览器 → 服务器 | 我要什么数据（请求方法、URL、携带的参数） |
+| **响应报文（Response）** | 服务器 → 浏览器 | 我给你的数据（状态码、返回的数据）        |
+
+## 国际单位制（SI）词头完整列表（含中文名称）
+
+| 词头   | 符号 | 10的幂次 | 数值                                      | 中文名称   | 中文简称 |
+| :----- | :--- | :------- | :---------------------------------------- | :--------- | :------- |
+| quecto | q    | 10⁻³⁰    | 0.000…001（30位小数）                     | **亏科托** | 亏       |
+| ronto  | r    | 10⁻²⁷    | 0.000…001（27位小数）                     | **柔托**   | 柔       |
+| yocto  | y    | 10⁻²⁴    | 0.000…001（24位小数）                     | **幺科托** | 幺       |
+| zepto  | z    | 10⁻²¹    | 0.000…001（21位小数）                     | **介普托** | 介       |
+| atto   | a    | 10⁻¹⁸    | 0.000…001（18位小数）                     | **阿托**   | 阿       |
+| femto  | f    | 10⁻¹⁵    | 0.000…001（15位小数）                     | **飞母托** | 飞       |
+| pico   | p    | 10⁻¹²    | 0.000000000001                            | **皮可**   | 皮       |
+| nano   | n    | 10⁻⁹     | 0.000000001                               | **纳诺**   | 纳       |
+| micro  | μ    | 10⁻⁶     | 0.000001                                  | **微**     | 微       |
+| milli  | m    | 10⁻³     | 0.001                                     | **毫**     | 毫       |
+| centi  | c    | 10⁻²     | 0.01                                      | **厘**     | 厘       |
+| deci   | d    | 10⁻¹     | 0.1                                       | **分**     | 分       |
+| —      | —    | 10⁰      | 1                                         | —          | —        |
+| deca   | da   | 10¹      | 10                                        | **十**     | 十       |
+| hecto  | h    | 10²      | 100                                       | **百**     | 百       |
+| kilo   | k    | 10³      | 1,000                                     | **千**     | 千       |
+| mega   | M    | 10⁶      | 1,000,000                                 | **兆**     | 兆       |
+| giga   | G    | 10⁹      | 1,000,000,000                             | **吉**     | 吉       |
+| tera   | T    | 10¹²     | 1,000,000,000,000                         | **太**     | 太       |
+| peta   | P    | 10¹⁵     | 1,000,000,000,000,000                     | **拍**     | 拍       |
+| exa    | E    | 10¹⁸     | 1,000,000,000,000,000,000                 | **艾**     | 艾       |
+| zetta  | Z    | 10²¹     | 1,000,000,000,000,000,000,000             | **泽**     | 泽       |
+| yotta  | Y    | 10²⁴     | 1,000,000,000,000,000,000,000,000         | **尧**     | 尧       |
+| ronna  | R    | 10²⁷     | 1,000,000,000,000,000,000,000,000,000     | **柔**     | 柔       |
+| quetta | Q    | 10³⁰     | 1,000,000,000,000,000,000,000,000,000,000 | **亏**     | 亏       |
+
+**# 在文档里是分隔符，表示“的”；**
+**axios#request 就是“axios 的 request 方法”**
+
+
+
+
+
+**前端 → 后端** 叫**请求（Request）**，**后端 → 前端** 叫**响应（Response）**。所有 HTTP 通信都是这个模式：前端先“问”，后端再“答”。
+
+
+
+
+
+**GET 和 POST 都是前端→后端的请求，只是 GET 把数据放在 URL 里，POST 把数据放在请求体（body）里。**
+
+| 对比         | **GET**                    | **POST**               |
+| :----------- | :------------------------- | :--------------------- |
+| 数据放哪里？ | **URL 地址里**（查询参数） | **请求体（body）里**   |
+| 数据可见性   | 网址上直接能看到           | 不在网址上，在请求体里 |
+| 数据长度限制 | 有限制（URL 长度限制）     | 无限制                 |
+| 典型用途     | 获取数据、查询             | 提交数据、登录、注册   |
+
+
+
+
+
+前端把数据**发送给**后端，用各种 HTTP 方法：
+
+| 方法       | 作用             | 数据放哪 | 示例                                           |
+| :--------- | :--------------- | :------- | :--------------------------------------------- |
+| **GET**    | 获取数据         | URL 上   | `axios.get('/users')`                          |
+| **POST**   | 提交数据         | 请求体   | `axios.post('/login', { username, password })` |
+| **PUT**    | 更新数据（全部） | 请求体   | `axios.put('/user/1', { name: '李四' })`       |
+| **PATCH**  | 更新数据（部分） | 请求体   | `axios.patch('/user/1', { age: 18 })`          |
+| **DELETE** | 删除数据         | URL 上   | `axios.delete('/user/1')`                      |
+
+
+
+```text
+1. 用户在浏览器输入用户名密码，点击登录
+                    ↓
+2. 前端（浏览器）  ── POST /login 请求 ──→  后端（服务器）
+                    携带 { username, password }
+                    ↓
+3. 后端验证用户名密码，生成 token
+                    ↓
+4. 后端（服务器）  ── 响应 { code: 200, token: 'xxx' } ──→  前端（浏览器）
+                    ↓
+5. 前端收到响应，把 token 存起来，跳转到首页
+                    ↓
+6. 用户看到登录成功 ✅
+```
+
+前后端通信
+
+```text
+前端 → 后端 vs 后端 → 前端
+
+
+前端 → 后端 = 请求（Request）
+后端 → 前端 = 响应（Response）
+
+所有 HTTP 通信都是这个模式：前端先“问”，后端再“答”。
+
+
+一句话理解：
+前端 → 后端 = 发请求（问）
+后端 → 前端 = 返回响应（答）
+
+
+完整流程：
+前端（浏览器） ── 请求（Request）──> 后端（服务器）
+       ↑                              │
+       └── 响应（Response）───────────┘
+
+
+一、前端 → 后端（请求 Request）
+
+前端把数据发送给后端，用各种 HTTP 方法：
+
+GET     → 获取数据     → 数据放 URL 上      → axios.get('/users')
+POST    → 提交数据     → 数据放请求体       → axios.post('/login', { username, password })
+PUT     → 更新全部数据  → 数据放请求体       → axios.put('/user/1', { name: '李四' })
+PATCH   → 更新部分数据  → 数据放请求体       → axios.patch('/user/1', { age: 18 })
+DELETE  → 删除数据     → 数据放 URL 上      → axios.delete('/user/1')
+
+
+二、后端 → 前端（响应 Response）
+
+后端处理完请求后，把结果返回给前端：
+
+{
+  code: 200,           // 状态码
+  message: '登录成功',  // 消息
+  data: {              // 实际数据
+    token: 'xxx',
+    user: { id: 1, name: '张三' }
+  }
+}
+
+
+后端返回数据的写法（Node.js 示例）：
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body
+  
+  if (username === 'admin' && password === '123') {
+    res.json({ code: 200, message: '登录成功', data: { token: 'xxx' } })
+  } else {
+    res.json({ code: 401, message: '用户名或密码错误' })
+  }
+})
+
+
+前端如何处理后端的响应：
+const handleLogin = async () => {
+  try {
+    const response = await axios.post('/api/login', {
+      username: 'admin',
+      password: '123'
+    })
+    
+    console.log(response.data)  // 后端返回的数据
+    
+    if (response.data.code === 200) {
+      const token = response.data.data.token
+      localStorage.setItem('token', token)
+    }
+  } catch (error) {
+    console.error('请求失败', error)
+  }
+}
+
+
+完整的请求-响应流程：
+1. 用户输入用户名密码，点击登录
+2. 前端 → 后端：POST /login 请求，携带 { username, password }
+3. 后端验证用户名密码，生成 token
+4. 后端 → 前端：响应 { code: 200, token: 'xxx' }
+5. 前端收到响应，把 token 存起来，跳转到首页
+6. 用户看到登录成功
+
+
+总结表：
+方向           名称      英文       数据方向       谁发起
+前端 → 后端    请求      Request   发送数据       前端（主动）
+后端 → 前端    响应      Response  返回数据       后端（被动回应）
+
+
+记忆口诀：
+前端发请求（Request），后端回响应（Response）
+问的是请求，答的是响应
+方向是相反的，顺序是先问后答
+```
+
+
+
+
+
+
+
+
+
+```javascript
+//回调函数
+
+// ============================================================
+// 示例1：生活场景 - 妈妈叫你吃饭
+// ============================================================
+
+// 你交代的"叫我吃饭"这个动作（回调函数）
+function 叫我吃饭() {
+  console.log("👩‍🍳 妈妈：吃饭啦！")
+  console.log("🧑 你：来了来了！")
+}
+
+// 妈妈这个函数，接收一个回调函数作为参数
+function 妈妈(回调函数) {
+  console.log("开始做饭...")
+  
+  // 模拟做饭需要5秒
+  setTimeout(() => {
+    console.log("饭做好了！")
+    回调函数()  // ← 执行你交代的事：叫你吃饭
+  }, 5000)
+}
+
+// 调用：把"叫我吃饭"这个函数传给"妈妈"
+妈妈(叫我吃饭)
+
+
+// ============================================================
+// 示例2：数组遍历 - forEach 回调
+// ============================================================
+
+const numbers = [1, 2, 3]
+
+// forEach 接收一个回调函数，对数组每个元素执行一次
+numbers.forEach(function(item) {
+  console.log(item)
+})
+
+// 也可以写成箭头函数（更简洁）
+numbers.forEach((item) => {
+  console.log(item)
+})
+
+
+// ============================================================
+// 示例3：DOM 点击事件 - 浏览器中最常见
+// ============================================================
+
+// 获取按钮
+const btn = document.getElementById('myBtn')
+
+// 添加点击事件，传入回调函数
+// 只有用户点击按钮时，这个函数才会执行
+btn.addEventListener('click', function() {
+  alert('按钮被点击了！')
+})
+
+// 也可以用箭头函数
+btn.addEventListener('click', () => {
+  alert('按钮被点击了！')
+})
+```
+
+
+
+
+
+
+
+跨域 请求后端api
+
+````text
+Vite 代理配置 server.proxy
+
+
+这个配置是 Vite 开发服务器的代理配置，用来解决前后端分离开发时的跨域问题。
+
+
+配置代码：
+server: {
+  server:{
+    proxy:{
+      '/api': {
+        target: 'http://ceshi13.dishait.cn',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    }
+  },
+}
+
+
+配置拆解：
+'/api'        → 拦截所有以 /api 开头的请求
+target        → 转发到目标服务器地址
+changeOrigin  → 把请求头的 Origin 改成目标服务器地址（避免被后端拒绝）
+rewrite       → 把路径中的 /api 去掉
+```javascript
+    server: {
+    	proxy:{
+          '/api': {                      // ① 匹配以 /api 开头的请求
+            target: 'http://ceshi13.dishait.cn',  // ② 转发到目标服务器
+            changeOrigin: true,          // ③ 修改请求头中的 Origin
+            rewrite: (path) => path.replace(/^\/api/, ''),  // ④ 重写路径
+          },
+      }
+    }
+```
+
+
+实际转发过程：
+前端请求：/api/users
+    ↓
+Vite 代理拦截（匹配 /api）
+    ↓
+重写路径：去掉 /api → /users
+    ↓
+转发到：http://ceshi13.dishait.cn/users
+
+
+为什么需要这个配置？
+跨域问题：浏览器限制前端（localhost:5173）直接请求不同域名（ceshi13.dishait.cn）的接口
+代理解决：Vite 开发服务器作为"中间人"，前端请求 Vite，Vite 再请求后端，没有跨域限制
+
+
+请求流程图：
+浏览器（前端） → Vite 开发服务器 → 后端服务器
+localhost:5173  →  localhost:5173  →  ceshi13.dishait.cn
+GET /api/users     代理转发          GET /users
+
+
+总结：
+作用：解决开发时的跨域问题
+做了什么：把 /api/xxx 转发到 http://ceshi13.dishait.cn/xxx
+生产环境需要吗：不需要，由 Nginx 或后端处理
+
+
+记忆口诀：
+/api 请求被拦截，转发到目标服务器
+去掉前缀改路径，跨域问题被解决
+````
+
+### 正则表达式拆解
+
+```javascript
+/^\/api/
+```
+
+| 符号  | 含义                       |
+| :---- | :------------------------- |
+| `/`   | 正则表达式的开始和结束标记 |
+| `^`   | 匹配字符串的**开头**       |
+| `\/`  | 匹配斜杠 `/`（需要转义）   |
+| `api` | 匹配字符串 `api`           |
+
+**合起来：匹配以 `/api` 开头的路径。**
+
+| 原始路径 `path`    | 匹配结果           | 替换后      |
+| :----------------- | :----------------- | :---------- |
+| `/api/users`       | ✅ 以 `/api` 开头   | `/users`    |
+| `/api/products`    | ✅ 以 `/api` 开头   | `/products` |
+| `/api/login`       | ✅ 以 `/api` 开头   | `/login`    |
+| `/static/logo.png` | ❌ 不以 `/api` 开头 | 不替换      |
+
+
+
+
+
+
+
+
+
+
+
+#### HTML / CSS / JS 里的 `type` 是什么意思？
+
+------
+
+### 一、HTML 中
+
+#### 1. `<input>` 标签的 `type`
+
+定义输入框的类型，决定输入框显示什么控件。
+
+| `type` 值    | 效果                         |
+| ------------ | ---------------------------- |
+| `"text"`     | 普通文本输入框（默认）       |
+| `"password"` | 密码框（输入内容显示为圆点） |
+| `"email"`    | 邮箱输入框                   |
+| `"number"`   | 数字输入框                   |
+| `"checkbox"` | 复选框                       |
+| `"radio"`    | 单选框                       |
+| `"file"`     | 文件上传                     |
+| `"date"`     | 日期选择器                   |
+| `"submit"`   | 提交按钮                     |
+| `"button"`   | 普通按钮                     |
+| `"hidden"`   | 隐藏字段                     |
+| `"color"`    | 颜色选择器                   |
+| `"range"`    | 滑块                         |
+
+```html
+<input type="text" placeholder="用户名">
+<input type="password" placeholder="密码">
+<input type="email" placeholder="邮箱">
+<input type="checkbox"> 记住密码
+<input type="file">
+<input type="date">
+<input type="color">
+<input type="submit" value="提交">
+```
+
+#### 2. `<button>` 标签的 `type`
+
+定义按钮的行为。
+
+| `type` 值  | 作用                 |
+| ---------- | -------------------- |
+| `"submit"` | 提交表单             |
+| `"reset"`  | 重置表单             |
+| `"button"` | 普通按钮，无默认行为 |
+
+```html
+<form>
+  <input type="text">
+
+  <button type="submit">提交</button>
+  <button type="reset">重置</button>
+  <button type="button">普通按钮</button>
+</form>
+```
+
+#### 3. `<script>` 标签的 `type`
+
+定义脚本的类型。
+
+| `type` 值           | 说明                            |
+| ------------------- | ------------------------------- |
+| `"text/javascript"` | JavaScript，默认可以省略        |
+| `"text/babel"`      | Babel 编译的 JavaScript         |
+| `"text/typescript"` | TypeScript，需经过编译          |
+| `"module"`          | ES Module，支持 `import/export` |
+
+```html
+<!-- 普通 JavaScript -->
+<script>
+  console.log('hello')
+</script>
+
+<!-- ES Module -->
+<script type="module">
+  import { foo } from './utils.js'
+</script>
+```
+
+#### 4. `<link>` 标签的 `type`
+
+定义链接资源的 MIME 类型。
+
+| `type` 值     | 说明       |
+| ------------- | ---------- |
+| `"text/css"`  | CSS 样式表 |
+| `"image/png"` | PNG 图片   |
+
+```html
+<link rel="stylesheet" type="text/css" href="style.css">
+<link rel="icon" type="image/png" href="favicon.png">
+```
+
+#### 5. `<style>` 标签的 `type`
+
+定义样式类型，现在基本不用写，因为默认就是 CSS。
+
+| `type` 值    | 说明     |
+| ------------ | -------- |
+| `"text/css"` | CSS 样式 |
+
+```html
+<style type="text/css">
+  body {
+    color: red;
+  }
+</style>
+```
+
+------
+
+### 二、CSS 中
+
+#### `type` 在 CSS 中是什么？
+
+CSS 本身没有 `type` 属性，但可以通过**属性选择器**根据 HTML 元素的 `type` 属性来选择元素。
+
+| 写法                     | 作用           |
+| ------------------------ | -------------- |
+| `input[type="text"]`     | 选择文本输入框 |
+| `input[type="password"]` | 选择密码框     |
+| `input[type="checkbox"]` | 选择复选框     |
+
+```css
+/* 选择 type="password" 的 input */
+input[type="password"] {
+  background: yellow;
+}
+
+/* 选择 type="checkbox" 的 input */
+input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+}
+```
+
+------
+
+### 三、JavaScript 中
+
+#### `typeof` 运算符
+
+JavaScript 中不是用 `type`，而是用 `typeof` 来检查数据类型。
+
+| 写法                  | 返回结果      |
+| --------------------- | ------------- |
+| `typeof 42`           | `"number"`    |
+| `typeof 'hello'`      | `"string"`    |
+| `typeof true`         | `"boolean"`   |
+| `typeof undefined`    | `"undefined"` |
+| `typeof null`         | `"object"`    |
+| `typeof {}`           | `"object"`    |
+| `typeof []`           | `"object"`    |
+| `typeof function(){}` | `"function"`  |
+
+```javascript
+typeof 42
+typeof 'hello'
+typeof true
+typeof undefined
+typeof null
+typeof {}
+typeof []
+typeof function(){}
+```
+
+#### 对象的 `type` 属性
+
+JavaScript 对象也可以自己定义 `type` 属性。
+
+| 写法                  | 含义                     |
+| --------------------- | ------------------------ |
+| `user.type`           | 获取对象中的 `type` 属性 |
+| `user.type = 'admin'` | 修改对象中的 `type` 属性 |
+
+```javascript
+const user = {
+  name: '张三',
+  type: 'admin',
+  age: 18
+}
+
+console.log(user.type)  // 'admin'
+```
+
+------
+
+### 四、总结
+
+| 位置        | 写法                      | 含义                     |
+| ----------- | ------------------------- | ------------------------ |
+| HTML 输入框 | `<input type="password">` | 输入框的类型             |
+| HTML 按钮   | `<button type="submit">`  | 按钮的行为               |
+| HTML 脚本   | `<script type="module">`  | 脚本的类型               |
+| HTML 链接   | `<link type="text/css">`  | 资源的类型               |
+| CSS         | `input[type="password"]`  | 根据 `type` 属性选择元素 |
+| JavaScript  | `typeof 42`               | 检查数据类型             |
+| JavaScript  | `obj.type`                | 对象的 `type` 属性       |
+
+------
+
+### 记忆口诀
+
+> **HTML：type 决定控件类型或行为**
+> **CSS：type 用来选择元素**
+> **JS：typeof 用来判断数据类型**
+
+
+
+
+
+
+
+
+
+```text
+<!-- 1. 跳转到另一个页面 -->
+<a href="about.html">关于我们</a>
+
+<!-- 2. 跳转到外部网站 -->
+<a href="https://www.baidu.com">去百度</a>
+
+<!-- 3. 跳转到页面内的某个锚点 -->
+<a href="#section1">跳转到第1节</a>
+<!-- 目标位置 -->
+<h2 id="section1">第1节</h2>
+
+<!-- 4. 跳转到顶部 -->
+<a href="#top">回到顶部</a>
+
+<!-- 5. 发送邮件 -->
+<a href="mailto:admin@example.com">发邮件给我们</a>
+
+<!-- 6. 拨打电话（移动端） -->
+<a href="tel:13800138000">打电话</a>
+
+<!-- 7. 新窗口打开 -->
+<a href="https://example.com" target="_blank">新窗口打开</a>
+
+<!-- 8. 下载文件 -->
+<a href="file.pdf" download>下载PDF</a>
+
+<!-- 9. 执行 JavaScript -->
+<a href="javascript:alert('点击了')">点击弹出提示</a>
+
+<!-- 10. 什么都不做（占位） -->
+<a href="javascript:void(0)">占位链接</a>
+```
+
+| 属性                  | 作用                       |
+| :-------------------- | :------------------------- |
+| `target="_blank"`     | 在新窗口或新标签页打开链接 |
+| `target="_self"`      | 在当前窗口打开（默认）     |
+| `target="_parent"`    | 在父级框架打开             |
+| `target="_top"`       | 在顶层框架打开             |
+| `target="自定义名称"` | 在指定名称的窗口打开       |
+
+```html
+<!-- 点击后在新标签页打开百度 -->
+<a href="https://www.baidu.com" target="_blank">去百度（新窗口）</a>
+
+<!-- 点击后在当前窗口打开（默认行为） -->
+<a href="https://www.baidu.com">去百度（当前窗口）</a>
+
+<!-- 点击后在整个页面窗口打开（用于跳出 iframe） -->
+<a href="https://www.baidu.com" target="_top">去百度（顶层）</a>
+```
+
+| 属性                  | 作用                                         |
+| :-------------------- | :------------------------------------------- |
+| `download`            | 让浏览器**下载**链接指向的文件，而不是打开它 |
+| `download="新文件名"` | 下载时重命名文件                             |
+
+```html
+<!-- 下载文件，保持原文件名 -->
+<a href="file.pdf" download>下载PDF</a>
+
+<!-- 下载文件，并重命名为 "报告.pdf" -->
+<a href="file.pdf" download="报告.pdf">下载PDF</a>
+
+<!-- 下载图片 -->
+<a href="photo.jpg" download>下载图片</a>
+
+<!-- 强制下载，而不是在浏览器中打开 -->
+<a href="https://example.com/photo.jpg" download>下载图片</a>
+```
+
+```text
+下载：服务器 → 本地（用 <a download>）
+上传：本地 → 服务器（用 <input type="file"> + axios/fetch/表单）
+```
+
+
+
+
+
+
+
+| 方法                       | 作用                       | 示例                    |
+| :------------------------- | :------------------------- | :---------------------- |
+| `router.push('/home')`     | **跳转**到新页面（入栈）   | 从 A → B                |
+| `router.replace('/login')` | **替换**当前页面（不入栈） | 从 A 换成 B，不能返回 A |
+| `router.back()`            | **后退**一步（出栈）       | 从 B 回到 A             |
+| `router.go(-1)`            | **后退**一步               | 同 `back()`             |
+| `router.go(-2)`            | **后退**两步               | 从 C 回到 A             |
+
+```javascript
+// 你的代码
+const cookie = useCookies()
+// 可以操作所有 Cookie，包括 token、locale、userInfo 等
+
+// 但如果你只需要操作 locale
+const cookies = useCookies(['locale'])
+// 更精确，只操作 locale，代码意图更清晰
 ```
 
