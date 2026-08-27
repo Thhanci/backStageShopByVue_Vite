@@ -34,6 +34,10 @@ https://element-plus.org/zh-CN/component/notification.html#%E4%B8%8D%E5%90%8C%E7
 
 
 
+[安装 | Vuex](https://vuex.vuejs.org/zh/installation.html#npm)
+
+
+
 ```text
 npm install @element-plus/icons-vue
 
@@ -42,6 +46,7 @@ npm install axios
 npm i @vueuse/integrations
 npm i universal-cookie@^7
 
+npm install vuex@next --save
 ```
 
 
@@ -77,6 +82,8 @@ git config --global --get https.proxy
 git config --global http.proxy http://127.0.0.1:7897
 git config --global https.proxy http://127.0.0.1:7897
 ```
+
+
 
 
 
@@ -1520,5 +1527,774 @@ const cookies = useCookies(['locale'])
 ┌─────────────────────────────────────────────────────────┐
 │                     页面拿到数据                        │
 └─────────────────────────────────────────────────────────┘
+```
+
+
+
+
+
+
+
+`.reject` 是 **Promise 对象的一个静态方法**，用来**手动创建一个“失败”状态的 Promise**，并把错误信息传出去。
+
+> **`Promise.reject(error)` = “主动宣告失败，并抛出错误”。**
+
+| 方法                    | 作用                         | 状态                |
+| :---------------------- | :--------------------------- | :------------------ |
+| `Promise.resolve(data)` | 主动宣告**成功**，并返回数据 | `fulfilled`（成功） |
+| `Promise.reject(error)` | 主动宣告**失败**，并返回错误 | `rejected`（失败）  |
+
+```javascript
+// 成功：返回数据
+Promise.resolve('登录成功')
+  .then(res => console.log(res))  // '登录成功'
+
+// 失败：返回错误
+Promise.reject('登录失败')
+  .catch(err => console.log(err)) // '登录失败'
+```
+
+```javascript
+axios 配置 baseURL: '/api'
+    ↓
+login() 发送请求：axios.post("/admin/login")
+    ↓
+实际请求路径：/api/admin/login（baseURL + 路径）
+    ↓
+Vite 代理拦截 /api 开头的请求
+    ↓
+转发到：http://ceshi13.dishait.cn/admin/login
+```
+
+```text
+前端写：/admin/login
+        ↓
+baseURL 补全：/api/admin/login
+        ↓
+Vite 代理拦截：/api 开头的请求
+        ↓
+rewrite 去掉 /api：/admin/login
+        ↓
+最终发给：http://ceshi13.dishait.cn/admin/login
+```
+
+
+
+
+
+
+
+| 位置             | 代码                                      | 职责                                   |
+| :--------------- | :---------------------------------------- | :------------------------------------- |
+| **login.vue**    | `cookie.set("admin-token", res.token)`    | **存** token（登录成功后存起来）       |
+| **axios 拦截器** | `const token = cookie.get("admin-token")` | **取** token（发请求时取出来放请求头） |
+
+```text
+登录成功
+    ↓
+login.vue：cookie.set("admin-token", "abc123")  ← 存
+    ↓
+之后发请求
+    ↓
+拦截器：const token = cookie.get("admin-token")  ← 取
+    ↓
+拦截器：config.headers["token"] = token  ← 放到请求头
+    ↓
+请求发出去，后端收到 token ✅
+```
+
+
+
+
+
+
+
+**`/admin/getinfo` 是一个获取“当前登录用户信息”的接口，后端会返回用户的个人信息和权限数据。**
+
+export function getinfo(){
+
+  return axios.post("/admin/getinfo")
+
+}
+
+```text
+登录成功后，前端调用 getinfo()
+    ↓
+请求：POST /admin/getinfo（请求头带 token）
+    ↓
+后端根据 token 识别当前用户
+    ↓
+从数据库查询该用户的信息
+    ↓
+返回用户数据
+    ↓
+前端拿到用户信息，存入 store 或 localStorage
+```
+
+
+
+
+
+
+
+```text
+const loading = ref(false) 是什么意思？
+
+
+一、作用
+控制登录按钮的加载状态，让用户点击后按钮显示转圈圈，防止重复点击。
+
+
+二、完整流程
+loading.value = true   // 按钮变转圈 + 禁用
+// ... 发送登录请求
+loading.value = false  // 按钮恢复正常
+
+
+三、模板中的用法
+<el-button :loading="loading" @click="onSubmit">登录</el-button>
+
+loading = true  → 显示转圈，禁用点击
+loading = false → 显示正常，可点击
+
+
+四、为什么需要？
+防止用户多次点击 → 避免重复提交请求
+提升用户体验 → 让用户知道正在处理
+
+
+五、finally 的作用
+login(...)
+  .finally(() => {
+    loading.value = false  // 不管成功还是失败，最后都恢复按钮
+  })
+
+
+六、变量名必须叫 loading 吗？
+不是！可以随便取，叫 isLoading、submitting 都行。
+
+<el-button :loading="你的任何变量名">
+<!--         ↑                  ↑ -->
+     属性名固定叫 loading     变量名随便取
+
+
+七、总结
+loading = 你自己定义的开关（响应式变量）
+ref = Vue 提供的响应式工具
+转圈动画 = Element Plus 的 el-button 组件内置的
+数据库 = 没关系 ❌
+
+你定义开关，你控制开关，el-button 负责显示效果。
+```
+
+
+
+
+
+
+
+### BOM 的核心对象
+
+| 对象        | 作用                                  | 示例                                |
+| :---------- | :------------------------------------ | :---------------------------------- |
+| `window`    | 浏览器窗口，BOM 的顶层对象            | `window.innerWidth`（窗口宽度）     |
+| `location`  | 当前页面的 URL 信息                   | `location.href = '/home'`（跳转）   |
+| `history`   | 浏览历史记录                          | `history.back()`（后退）            |
+| `navigator` | 浏览器信息                            | `navigator.userAgent`（浏览器类型） |
+| `screen`    | 屏幕信息                              | `screen.width`（屏幕宽度）          |
+| `document`  | DOM 树的入口（DOM 属于 BOM 的一部分） | `document.getElementById('app')`    |
+
+```text
+DOM（Document Object Model）是 BOM 的一部分，专门操作网页内容（HTML 元素）
+
+BOM（浏览器对象模型）
+├── window（窗口）
+│   ├── document（DOM）← 操作网页内容
+│   ├── location ← 操作 URL
+│   ├── history ← 操作历史
+│   └── navigator ← 操作浏览器信息
+```
+
+```text
+原型（prototype）和原型链（prototype chain）
+
+
+原型（prototype）是什么？
+每个 JavaScript 对象都有一个内部链接指向它的原型对象，原型里存放着共享的方法和属性。
+
+
+原型链（prototype chain）是什么？
+当访问对象的属性时，如果对象本身没有，JavaScript 会顺着原型链向上查找，直到找到或到达 null。
+
+
+一、原型和原型链的关系
+实例对象 → 构造函数的 prototype → 父类的 prototype → ... → Object.prototype → null
+
+
+二、代码示例
+
+示例1：原型的基本使用
+function Person(name) {
+  this.name = name
+}
+
+// 在原型上添加方法
+Person.prototype.sayHello = function() {
+  console.log('你好，' + this.name)
+}
+
+const p = new Person('张三')
+
+p.sayHello()  // '你好，张三' ← sayHello 来自原型
+
+
+示例2：原型链查找过程
+function Person(name) {
+  this.name = name
+}
+Person.prototype.sayHello = function() {
+  console.log('你好，' + this.name)
+}
+
+const p = new Person('张三')
+
+// 查找 name：对象自身有，直接取
+console.log(p.name)        // '张三'
+
+// 查找 sayHello：对象自身没有，去原型上找
+console.log(p.sayHello)    // function
+
+// 查找 toString：原型上没有，继续去 Object.prototype 上找
+console.log(p.toString())  // '[object Object]'
+
+// 查找 xxx：整条链都找不到，返回 undefined
+console.log(p.xxx)         // undefined
+
+
+示例3：系统自带的原型方法
+const arr = [1, 2, 3]
+arr.push(4)      // push 来自 Array.prototype（浏览器内置）
+arr.toString()   // toString 来自 Object.prototype（浏览器内置）
+
+
+示例4：自定义原型方法
+function Dog(name) {
+  this.name = name
+}
+Dog.prototype.bark = function() {
+  console.log('汪汪！')
+}
+
+const d = new Dog('旺财')
+d.bark()  // '汪汪！' ← 来自自定义的原型
+
+
+示例5：继承关系
+function Animal(name) {
+  this.name = name
+}
+Animal.prototype.eat = function() {
+  console.log(this.name + ' 在吃东西')
+}
+
+function Dog(name, breed) {
+  Animal.call(this, name)  // 继承属性
+  this.breed = breed
+}
+Dog.prototype = Object.create(Animal.prototype)  // 继承方法
+Dog.prototype.constructor = Dog
+
+Dog.prototype.bark = function() {
+  console.log('汪汪！')
+}
+
+const d = new Dog('旺财', '金毛')
+d.eat()   // '旺财 在吃东西' ← 来自 Animal.prototype
+d.bark()  // '汪汪！' ← 来自 Dog.prototype
+
+
+三、关系图
+p（实例对象）
+  ├── name: '张三'        ← 自身属性
+  ├── __proto__ → Person.prototype
+  │                 ├── sayHello: function
+  │                 ├── constructor: Person
+  │                 ├── __proto__ → Object.prototype
+  │                                   ├── toString: function
+  │                                   ├── hasOwnProperty: function
+  │                                   ├── __proto__ → null（终点）
+  └── ...
+
+
+四、总结
+原型 = 对象的共享方法来源（类似于“模板”）
+原型链 = 对象查找属性的链条，逐级向上找
+
+查找规则：
+自身有 → 直接用
+自身没有 → 去原型上找
+原型没有 → 继续往上找
+找到 null → 返回 undefined
+```
+
+```text
+dangerouslyUseHTMLString 是什么？
+
+
+Element Plus 中 ElNotification 或 ElMessage 的一个选项，用来允许消息内容中渲染 HTML 标签（而不是当作纯文本）。
+
+
+对比示例：
+// 默认（不开 HTML 解析）
+ElNotification({
+  message: '点击 <a href="/">这里</a> 查看详情'
+})
+→ 页面显示：点击 <a href="/">这里</a> 查看详情（纯文本）
+
+// 开启 HTML 解析
+ElNotification({
+  message: '点击 <a href="/">这里</a> 查看详情',
+  dangerouslyUseHTMLString: true
+})
+→ 页面显示：点击 这里（可点击的链接）
+
+
+为什么叫 "dangerously"？
+
+风险：XSS 攻击
+说明：如果消息内容来自用户输入，攻击者可以注入恶意脚本
+后果：脚本会被执行，可能窃取用户信息
+
+
+使用建议：
+消息内容是硬编码的（你自己写的）→ ✅ 安全
+消息内容来自后端 API（可控的）→ ⚠️ 小心
+消息内容来自用户输入（评论、表单）→ ❌ 危险
+
+
+总结：
+dangerouslyUseHTMLString = true  → 允许消息里写 HTML 标签
+默认 = false  → 消息内容当纯文本显示
+
+名字里的 "dangerously" 是提醒你：开启后有 XSS 攻击风险，要确保内容安全！
+```
+
+
+
+
+
+```text
+Vuex 是什么？
+
+
+Vuex = Vue + X
+X = 扩展/增强（代表对 Vue 响应式系统的扩展）
+
+
+一句话理解：
+Vuex 是一个“数据仓库”，把多个组件共用的数据放在一个地方统一管理，让数据的流向清晰可控。
+
+
+为什么需要 Vuex？
+多个组件共享同一份数据（如用户信息、登录状态）
+跨组件传递数据非常麻烦
+数据变化难以追踪
+
+
+核心概念：
+State     → 存放共享数据（相当于 data）
+Getters   → 从 state 派生出新数据（相当于 computed）
+Mutations → 唯一能修改 state 的方法（同步）
+Actions   → 提交 mutations，可包含异步操作（如 API 请求）
+Modules   → 将 store 拆分成多个模块，方便管理
+
+
+Vuex vs Pinia：
+Vuex     → Vue 2 推荐，Vue 3 也支持
+Pinia    → Vue 3 官方推荐（更简单，TS 支持更好）
+
+
+用途：集中管理组件共享数据
+适用：中大型项目、多个组件共享数据
+新项目推荐：Vue 3 用 Pinia，Vue 2 用 Vuex
+```
+
+```javascript
+// ============================================================
+// Vuex 简单示例（理解用）
+// ============================================================
+
+// 1. store/index.js
+import { createStore } from 'vuex'
+
+const store = createStore({
+  // state：存数据
+  state: {
+    count: 0,
+    user: null
+  },
+
+  // mutations：改数据（同步）
+  mutations: {
+    increment(state) {
+      state.count++
+    },
+    setUser(state, user) {
+      state.user = user
+    }
+  },
+
+  // actions：异步操作
+  actions: {
+    // 登录
+    login({ commit }, user) {
+      // 模拟异步请求
+      setTimeout(() => {
+        commit('setUser', user)//第一个参数 'setUser' 是 mutation 的名字（告诉 Vuex 要执行哪个 mutation），
+        //第二个参数 user 是要传给 mutation 的数据。
+      }, 1000)
+    }
+  }
+})
+
+
+// 2. main.js 注册
+import { createApp } from 'vue'
+import App from './App.vue'
+import store from './store'
+
+createApp(App).use(store).mount('#app')
+
+
+// 3. 组件中使用
+<template>
+  <div>
+    <p>count: {{ count }}</p>
+    <button @click="add">+1</button>
+    <p>用户：{{ user?.name }}</p>
+    <button @click="login">登录</button>
+  </div>
+</template>
+
+<script setup>
+import { computed } from 'vue'
+import { useStore } from 'vuex'
+
+const store = useStore()
+
+// 读数据
+const count = computed(() => store.state.count)
+const user = computed(() => store.state.user)
+
+// 改数据（同步）
+const add = () => store.commit('increment')
+
+// 改数据（异步）
+const login = () => store.dispatch('login', { name: '张三' })
+</script>
+```
+
+| 库名                    | 一句话介绍                                         | 安装命令                                |
+| :---------------------- | :------------------------------------------------- | :-------------------------------------- |
+| **Vue Router**          | Vue 官方路由库，实现页面切换和路由守卫             | `npm install vue-router`                |
+| **Vuex**                | Vue 2 官方状态管理库，集中管理共享数据             | `npm install vuex`                      |
+| **Pinia**               | Vue 3 官方推荐状态管理库，更轻量更简单             | `npm install pinia`                     |
+| **Element Plus**        | Vue 3 企业级 UI 组件库，提供现成的按钮/表格/表单等 | `npm install element-plus`              |
+| **Ant Design Vue**      | 阿里出品 Vue 3 UI 组件库，Ant Design 的 Vue 版本   | `npm install ant-design-vue`            |
+| **Vant**                | 移动端 Vue 3 UI 组件库，专为手机端设计             | `npm install vant`                      |
+| **axios**               | 最流行的 HTTP 请求库，用于前后端通信               | `npm install axios`                     |
+| **@vueuse/core**        | Vue 组合式工具函数集，提供大量开箱即用的 hooks     | `npm install @vueuse/core`              |
+| **Vite**                | 下一代前端构建工具，极速冷启动和热更新             | `npm install vite`                      |
+| **Windi CSS**           | 按需生成的原子化 CSS 框架，Tailwind 的替代品       | `npm install vite-plugin-windicss`      |
+| **Tailwind CSS**        | 最流行的原子化 CSS 框架，写类名即写样式            | `npm install tailwindcss`               |
+| **Less / Sass**         | CSS 预处理器，让 CSS 支持变量/嵌套/混合等          | `npm install less` / `npm install sass` |
+| **lodash**              | JS 工具函数库，提供数组/对象/字符串等操作函数      | `npm install lodash`                    |
+| **dayjs**               | 轻量级日期时间处理库，Moment.js 的现代替代品       | `npm install dayjs`                     |
+| **ECharts**             | 百度出品的数据可视化图表库，画折线图/柱状图/饼图等 | `npm install echarts`                   |
+| **Mock.js**             | 前端模拟数据生成器，拦截 Ajax 请求返回假数据       | `npm install mockjs`                    |
+| **Cookies / js-cookie** | 操作浏览器 Cookie 的工具库                         | `npm install js-cookie`                 |
+| **nprogress**           | 顶部进度条，用于路由切换或请求加载时显示           | `npm install nprogress`                 |
+| **qrcode**              | 生成二维码的库，常用于支付/分享场景                | `npm install qrcode`                    |
+| **vue-echarts**         | ECharts 的 Vue 3 封装，更方便在 Vue 中使用         | `npm install vue-echarts`               |
+
+
+
+
+
+| 写法    | 用在什么地方                       | 作用           | 示例              |
+| :------ | :--------------------------------- | :------------- | :---------------- |
+| `{}`    | JavaScript 代码中（`<script>` 里） | 定义对象       | `const user = {}` |
+| `{{ }}` | Vue 模板中（`<template>` 里）      | 显示数据到页面 | `{{ user.name }}` |
+
+
+
+
+
+
+
+```text
+闭包是什么？
+
+
+闭包 = 函数 + 函数能够记住并访问外部作用域的变量。
+
+
+一句话理解：
+闭包让一个函数“记住”了它出生时的环境，即使这个环境已经执行完了。
+
+
+最简单的例子：
+function outer() {
+  let count = 0      // 外部函数的变量
+
+  function inner() {
+    count++          // 内部函数访问外部变量
+    console.log(count)
+  }
+
+  return inner       // 返回内部函数
+}
+
+const fn = outer()
+fn()  // 输出：1
+fn()  // 输出：2
+fn()  // 输出：3
+
+
+inner 函数就是闭包，它“记住”了 count 变量，即使 outer 函数已经执行完了。
+
+
+在 Vue 中的闭包：
+// 防抖函数（闭包保存 timer）
+export function debounce(fn, delay = 300) {
+  let timer = null
+
+  return function(...args) {
+    clearTimeout(timer)
+    timer = setTimeout(() => {
+      fn(...args)
+    }, delay)
+  }
+}
+
+// 计数器（闭包保存 count）
+function createCounter() {
+  let count = 0
+  return {
+    increment: () => ++count,
+    decrement: () => --count,
+    getCount: () => count
+  }
+}
+
+const counter = createCounter()
+counter.increment()  // 1
+counter.increment()  // 2
+counter.getCount()   // 2
+
+
+闭包的特性：
+记忆   → 闭包可以记住外部函数的变量
+私有   → 闭包内的变量对外部不可见，实现“私有变量”
+延迟执行 → 闭包里的变量被引用时，才会被访问
+
+
+为什么需要闭包？
+防抖/节流 → 保存定时器 ID
+私有变量 → 创建只能通过特定方法访问的变量
+事件监听 → 保存状态数据
+Vue 的 setup → 组件内部的数据和方法形成闭包
+
+
+总结：
+闭包 = 函数 + 记住外部变量
+简单说：内部函数用了外部函数的变量，就形成了闭包。
+
+```
+
+
+
+**Vuex 调用你的 `getinfo` action 时，会自动把 `{ commit, state, getters, dispatch }` 作为第一个参数传进去。** 你用 `{ commit }` 解构出需要的部分。
+
+
+
+**Promise 是 JavaScript 中的“承诺”，用来处理异步操作（如网络请求、定时任务），让代码更优雅，避免“回调地狱”。**
+
+| 状态                  | 说明         | 比喻                   |
+| :-------------------- | :----------- | :--------------------- |
+| **pending**（等待中） | 操作还没完成 | 外卖还没做好           |
+| **fulfilled**（成功） | 操作成功完成 | 外卖做好了，你拿到了餐 |
+| **rejected**（失败）  | 操作失败     | 外卖做不了，退款了     |
+
+```js
+// ✅ Promise 链式调用
+getData()
+  .then(a => getMoreData(a))
+  .then(b => getMoreData(b))
+  .then(c => getMoreData(c))
+  .then(d => console.log(d))
+  .catch(err => console.log('出错', err))
+```
+
+
+
+
+
+```text
+//Promise
+Promise 是什么？
+
+
+Promise 是 JavaScript 中的“承诺”，用来处理异步操作（如网络请求、定时任务），让代码更优雅，避免“回调地狱”。
+
+
+一句话理解：
+Promise 就像“外卖订单号”——你点完外卖（发起请求），拿到一个订单号（Promise），等餐做好（请求完成）后，你可以通过这个单号取餐（获取结果）。
+
+
+三种状态：
+pending（等待中）→ 操作还没完成
+fulfilled（成功） → 操作成功完成
+rejected（失败）  → 操作失败
+
+
+最简单的例子：
+const promise = new Promise((resolve, reject) => {
+  setTimeout(() => {
+    const success = true
+    if (success) {
+      resolve('数据加载成功 ✅')
+    } else {
+      reject('加载失败 ❌')
+    }
+  }, 1000)
+})
+
+promise
+  .then(res => console.log(res))
+  .catch(err => console.log(err))
+
+
+在 Vue/axios 中的实际使用：
+axios.get('/api/users')
+  .then(res => console.log('成功', res.data))
+  .catch(err => console.log('失败', err))
+
+// async/await 写法（更推荐）
+const getUsers = async () => {
+  try {
+    const res = await axios.get('/api/users')
+    console.log('成功', res.data)
+  } catch (err) {
+    console.log('失败', err)
+  }
+}
+
+
+为什么需要 Promise？
+没有 Promise：多个请求层层嵌套，难以阅读，错误处理繁琐
+有 Promise：链式调用，清晰，统一用 .catch() 处理错误
+
+
+回调地狱 vs Promise：
+// ❌ 回调地狱
+getData(function(a) {
+  getMoreData(a, function(b) {
+    getMoreData(b, function(c) {
+      getMoreData(c, function(d) {
+        console.log(d)
+      })
+    })
+  })
+})
+
+// ✅ Promise 链式调用
+getData()
+  .then(a => getMoreData(a))
+  .then(b => getMoreData(b))
+  .then(c => getMoreData(c))
+  .then(d => console.log(d))
+  .catch(err => console.log('出错', err))
+
+
+总结：
+Promise = 异步操作的“承诺”
+作用：处理异步代码，避免回调地狱
+状态：pending → fulfilled 或 rejected
+用法：.then() 处理成功，.catch() 处理失败
+Vue 中：axios、路由守卫、表单验证等都返回 Promise
+```
+
+
+
+
+
+
+
+```text
+//axios_Post_Promise
+
+
+axios.post() 就是 Promise，不需要 new
+
+
+一句话总结：
+axios.post() 返回的就是 Promise，所以不需要自己 new，直接用 .then() 和 .catch() 就行。
+
+
+关系链条：
+axios.post()
+     ↓
+返回一个 Promise 对象（axios 内部已经 new 好了）
+     ↓
+你直接用 .then() .catch() 处理结果
+
+
+axios.post() 内部简化版：
+function post(url, data) {
+  return new Promise((resolve, reject) => {   // new 在这里！
+    // 发送请求...
+    if (成功) resolve(response)
+    if (失败) reject(error)
+  })
+}
+
+你调用时：
+axios.post('/api/login', { username, password })
+  .then(res => console.log(res.data))   // 直接用，不用 new
+  .catch(err => console.log(err))
+
+
+你的 login() 也是一样：
+export function login(username, password) {
+  return axios.post("/admin/login", {   // 返回的是 Promise
+    username,
+    password
+  })
+}
+
+login(form.username, form.password)   // 得到 Promise
+  .then(res => { ... })               // 直接用
+
+
+什么时候需要 new Promise？
+使用 axios        ❌ 不需要（axios 已经 new 好了）
+使用 fetch        ❌ 不需要（fetch 本身返回 Promise）
+封装 setTimeout   ✅ 需要（setTimeout 不是 Promise）
+封装事件监听      ✅ 需要（事件回调不是 Promise）
+
+手动 new 的例子：
+function delay(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms)   // setTimeout 不返回 Promise
+  })
+}
+
+
+总结：
+axios.post() 返回 Promise → 不需要 new
+axios 内部已经帮你 new 好了 → 直接用 .then() .catch()
+
+只有当你自己包装非 Promise 的异步操作时，才需要 new Promise。
 ```
 

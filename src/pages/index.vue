@@ -2,10 +2,14 @@
     <div>
         后台首页
 
+        {{ $store.state.user }}
+
+
+<!-- 
         <el-button @click="set">设置</el-button>
         <el-button @click="get">读取</el-button>
         <el-button @click="remove">删除</el-button>
-
+ -->
 
 
         <!-- <el-button @click="addCount">{{count}}</el-button>
@@ -17,20 +21,28 @@
 
 <script setup>
 
-    import { useCookies } from '@vueuse/integrations/useCookies'
-    const cookie=useCookies()
 
-    console.log(cookie);
 
-    function set(){
-        cookie.set("admin-token","123456")
-    }
-    function get(){
-        console.log(cookie.get("admin-token")) 
-    }
-    function remove(){
-        cookie.remove("admin-token")
-    }
+
+
+    // import { useCookies } from '@vueuse/integrations/useCookies'
+    // const cookie=useCookies()
+
+    // console.log(cookie);
+
+    // function set(){
+    //     cookie.set("admin-token","123456")
+    // }
+    // function get(){
+    //     console.log(cookie.get("admin-token")) 
+    // }
+    // function remove(){
+    //     cookie.remove("admin-token")
+    // }
+
+
+
+
 
 
     // import HelloWorld from '~/components/HelloWorld.vue'

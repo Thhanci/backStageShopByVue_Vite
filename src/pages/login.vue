@@ -39,7 +39,7 @@
                     </el-form-item>
     
                     <el-form-item>
-                        <el-button round color="#626aef" class="w-[250px]" type="primary" @click="onSubmit">登 录</el-button>
+                        <el-button round color="#626aef" class="w-[250px]" type="primary" @click="onSubmit" :loading="loading">登 录</el-button>
                     </el-form-item>
     
                 </el-form>
@@ -56,12 +56,17 @@
 
 <script  setup>
     import { reactive, ref } from 'vue'
-    import { ElNotification } from 'element-plus'
+    // import { ElNotification } from 'element-plus'
+    import { toast } from '~/composables/util'
     import { useRouter } from 'vue-router'
-    import { login } from '~/api/manager'
-    import { useCookies } from '@vueuse/integrations/useCookies'
+    import { useStore } from 'vuex'
+    import { login,getinfo } from '~/api/manager'
+    // import { useCookies } from '@vueuse/integrations/useCookies'
+    import{
+        setToken
+    } from '~/composables/auth'
 
-
+    const store = useStore()
     const router = useRouter()
 
     // import { User,Lock } from '@element-plus/icons-vue'
@@ -97,6 +102,8 @@
     }
 
     const formRef=ref(null)
+    const loading=ref(false)
+
 
     const onSubmit = () => {
         formRef.value.validate((valid)=>{
@@ -104,34 +111,41 @@
                 return false
             }
 
+            loading.value=true
+
             login(form.username,form.password)
             .then(res=>{
-                console.log(res.data.data);
+                console.log(res);
                 
                 //01提示成功
-                ElNotification({
-                    title: 'success',
-                    message: "登录成功",
-                    type: 'success',
-                    duration:2000
-                })
+
+                toast("登录成功",undefined,undefined,2000)
+
+                // ElNotification({
+                //     title: 'success',
+                //     message: "登录成功",
+                //     type: 'success',
+                //     duration:2000
+                // })
                 
-                //02存储token和用户相关信息
-                const cookie = useCookies()
-                cookie.set("admin-token",res.data.data.token)
+                //02存储token
+                setToken(res.token)
+                // const cookie = useCookies()
+                // cookie.set("admin-token",res.token)
+                
+                //获取用户相关信息
+                getinfo().then(res2=>{
+                    store.commit("SET_USERINFO",res2)
+                    console.log(res2);
+                })
 
                 //03跳转到后台首页
                 router.push("/")
             })
-            .catch(err=>{
-                // console.log(err.response.data);
-                ElNotification({
-                    title: 'Error',
-                    message: err.response.data.msg || "请求失败",
-                    type: 'error',
-                    duration:3000
-                })
+            .finally(()=>{
+                loading.value=false
             })
+
 
             // console.log("验证通过");
             // console.log(valid)
