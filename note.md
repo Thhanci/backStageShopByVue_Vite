@@ -2298,3 +2298,196 @@ axios 内部已经帮你 new 好了 → 直接用 .then() .catch()
 只有当你自己包装非 Promise 的异步操作时，才需要 new Promise。
 ```
 
+
+
+
+
+
+
+```text
+//await 是什么？
+
+
+await 是 JavaScript 中用来“等待”一个 Promise 完成的关键字，让异步代码看起来像同步代码一样顺序执行。
+
+
+一句话理解：
+await 相当于“请等一下”——等这个异步操作（如网络请求）完成，拿到结果后，再继续往下执行。
+
+
+基本用法：
+// 不用 await：代码不会等待
+axios.get('/api/users').then(res => {
+  console.log('这步晚点执行')
+})
+console.log('这步先执行')
+
+// 用 await：代码会等待
+async function getUsers() {
+  const res = await axios.get('/api/users')
+  console.log('这步后执行')
+}
+
+
+await 的规则：
+必须在 async 函数里使用
+后面通常跟一个返回 Promise 的函数
+返回的是 Promise 的 .then() 里的值
+
+
+对比写法：
+// 1. .then() 写法
+function getData() {
+  axios.get('/api/users')
+    .then(res => console.log(res.data))
+    .catch(err => console.log(err))
+}
+
+// 2. await 写法（更清晰）
+async function getData() {
+  try {
+    const res = await axios.get('/api/users')
+    console.log(res.data)
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+
+其他相关操作：
+await       → 等待 Promise 完成
+async       → 标记函数返回 Promise
+.then()     → 处理 Promise 成功
+.catch()    → 处理 Promise 失败
+.finally()  → 不管成功失败都执行
+try...catch → 捕获错误，配合 await 使用
+Promise.all() → 并行执行多个 Promise
+Promise.race() → 谁先完成就用谁
+
+
+常用组合：
+// async + await + try...catch
+async function login() {
+  try {
+    const res = await axios.post('/api/login', data)
+    console.log('成功', res.data)
+  } catch (err) {
+    console.log('失败', err)
+  }
+}
+
+// Promise.all（并行请求）
+async function loadAll() {
+  const [users, posts] = await Promise.all([
+    axios.get('/api/users'),
+    axios.get('/api/posts')
+  ])
+}
+
+
+在项目中的使用：
+const onSubmit = async () => {
+  try {
+    const res = await login(form.username, form.password)
+    toast('登录成功')
+    setToken(res.token)
+    await store.dispatch('getinfo')
+    router.push('/')
+  } catch (err) {
+    toast(err.response.data.msg || '请求失败', 'error')
+  } finally {
+    loading.value = false
+  }
+}
+
+
+总结：
+await = 等待 Promise 完成
+
+作用：让异步代码像同步一样顺序执行
+必须在 async 函数里使用
+配合 try...catch 处理错误
+```
+
+```text
+addEventListener() 的三个参数
+
+
+一句话理解：
+addEventListener 是“给元素绑定事件监听”的方法，告诉浏览器：“当这个事件发生时，执行这个函数”。
+
+
+你的代码：
+document.addEventListener("keyup", onKeyUp)
+
+
+三个参数：
+第 1 个：事件类型（string）→ 你的代码是 "keyup"
+第 2 个：回调函数（function）→ 你的代码是 onKeyUp
+第 3 个：配置选项（可选）→ 你的代码没传（默认 false）
+
+
+第一个参数 "keyup" 是什么？
+"keyup" 是事件类型，表示“键盘按键被松开时触发”。
+
+常见事件类型：
+"click"       → 点击元素时
+"keydown"     → 按下键盘按键时
+"keyup"       → 松开键盘按键时
+"input"       → 输入框内容变化时
+"mouseenter"  → 鼠标移入元素时
+"mouseleave"  → 鼠标移出元素时
+"scroll"      → 滚动时
+"resize"      → 窗口大小变化时
+"submit"      → 表单提交时
+
+
+第二个参数 onKeyUp 是什么？
+onKeyUp 是回调函数，当 keyup 事件发生时，浏览器会调用这个函数，并把事件对象传给它。
+
+function onKeyUp(e) {   // e 是事件对象
+  console.log(e)        // 包含按键信息（按了哪个键、位置等）
+}
+
+
+第三个参数（可选）：
+// 写法1：布尔值
+document.addEventListener("keyup", onKeyUp, true)   // 捕获阶段触发
+document.addEventListener("keyup", onKeyUp, false)  // 冒泡阶段触发（默认）
+
+// 写法2：配置对象
+document.addEventListener("keyup", onKeyUp, {
+  once: true,    // 只触发一次
+  passive: true, // 不调用 preventDefault()
+  capture: false // 是否在捕获阶段触发
+})
+
+
+完整示例：
+// 监听键盘松开事件
+document.addEventListener("keyup", function(e) {
+  console.log('你按了：', e.key)
+})
+
+// 监听点击事件
+document.addEventListener("click", function(e) {
+  console.log('点击了', e.target)
+})
+
+// 只触发一次的监听
+document.addEventListener("click", function(e) {
+  console.log('只触发一次')
+}, { once: true })
+
+// 移除监听
+document.removeEventListener("keyup", onKeyUp)
+
+
+总结：
+addEventListener(事件名, 回调函数, 配置选项)
+
+"keyup" → 键盘松开时触发
+onKeyUp → 触发时执行的函数
+第三个参数 → 可选（once、passive、capture）
+```
+

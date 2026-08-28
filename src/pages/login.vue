@@ -23,7 +23,7 @@
                 <el-form ref="formRef" :rules="rules" :model="form" class="w-[250px] flex flex-col items-center justify-center  ">
                     
                     <el-form-item prop="username">
-                        <el-input v-model="form.username" placeholder="请输入用户名">
+                        <el-input v-model="form.username" placeholder="请输入用户名" @keyup.enter="onKeyUp">
                             <template #prefix>
                                 <el-icon><User /></el-icon>
                             </template>
@@ -31,7 +31,7 @@
                     </el-form-item>
     
                     <el-form-item prop="password">
-                        <el-input type="password" v-model="form.password" placeholder="请输入密码" show-password>
+                        <el-input type="password" v-model="form.password" placeholder="请输入密码" @keyup.enter="onKeyUp" show-password>
                           <template #prefix>
                                 <el-icon><Lock /></el-icon>
                             </template>
@@ -55,16 +55,16 @@
 </template>
 
 <script  setup>
-    import { reactive, ref } from 'vue'
+    import { reactive, ref ,onMounted,onBeforeUnmount } from 'vue'
     // import { ElNotification } from 'element-plus'
     import { toast } from '~/composables/util'
     import { useRouter } from 'vue-router'
     import { useStore } from 'vuex'
-    import { login,getinfo } from '~/api/manager'
+    // import { login} from '~/api/manager'
     // import { useCookies } from '@vueuse/integrations/useCookies'
-    import{
-        setToken
-    } from '~/composables/auth'
+    // import{
+    //     setToken
+    // } from '~/composables/auth'
 
     const store = useStore()
     const router = useRouter()
@@ -113,38 +113,46 @@
 
             loading.value=true
 
-            login(form.username,form.password)
-            .then(res=>{
-                console.log(res);
-                
-                //01提示成功
-
-                toast("登录成功",undefined,undefined,2000)
-
-                // ElNotification({
-                //     title: 'success',
-                //     message: "登录成功",
-                //     type: 'success',
-                //     duration:2000
-                // })
-                
-                //02存储token
-                setToken(res.token)
-                // const cookie = useCookies()
-                // cookie.set("admin-token",res.token)
-                
-                //获取用户相关信息
-                getinfo().then(res2=>{
-                    store.commit("SET_USERINFO",res2)
-                    console.log(res2);
-                })
-
-                //03跳转到后台首页
+            store.dispatch("login",form).then(res=>{
+                toast("登录成功")
                 router.push("/")
-            })
-            .finally(()=>{
+            }).finally(()=>{
                 loading.value=false
             })
+
+
+            // login(form.username,form.password)
+            // .then(res=>{
+            //     console.log(res);
+                
+            //     //01提示成功
+
+            //     toast("登录成功",undefined,undefined,2000)
+
+            //     // ElNotification({
+            //     //     title: 'success',
+            //     //     message: "登录成功",
+            //     //     type: 'success',
+            //     //     duration:2000
+            //     // })
+                
+            //     //02存储token
+            //     setToken(res.token)
+            //     // const cookie = useCookies()
+            //     // cookie.set("admin-token",res.token)
+                
+            //     //获取用户相关信息
+            //     // getinfo().then(res2=>{
+            //     //     store.commit("SET_USERINFO",res2)
+            //     //     console.log(res2);
+            //     // })
+
+            //     //03跳转到后台首页
+            //     router.push("/")
+            // })
+            // .finally(()=>{
+            //     loading.value=false
+            // })
 
 
             // console.log("验证通过");
@@ -152,6 +160,22 @@
         })
         // console.log('submit!')
     }
+
+//监听回车事件
+function onKeyUp(e){
+    // console.log(e)
+    // if(e.key == "Enter")
+        onSubmit()
+}
+// //添加键盘监听
+// onMounted(()=>{
+//     document.addEventListener("keyup",onKeyUp)
+// })
+// //移除键盘监听
+// onBeforeUnmount(()=>{
+//     document.removeEventListener("keyup",onKeyUp)
+// })
+
 </script>
 
 <style scoped>
