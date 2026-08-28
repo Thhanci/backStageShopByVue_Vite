@@ -2684,3 +2684,56 @@ URL 用名词表示资源
 让接口设计更清晰、更规范
 ```
 
+```javascript
+//防抖（Debounce）
+//在事件被触发 n 秒后再执行回调，如果在这 n 秒内又被触发，则重新计时。
+//生活比喻：电梯门快关时又有人按开门键，门重新打开并重置关门倒计时。
+//核心场景：搜索框输入（用户停止输入后才发送请求）、窗口 resize（用户调整完窗口后才计算布局）。
+function debounce(fn, delay = 300) {
+    let timer = null;
+    return function(...args) {
+        clearTimeout(timer);  // 清除上一次的定时器，重新计时
+        timer = setTimeout(() => {
+            fn.apply(this, args);
+        }, delay);
+    };
+}
+
+// 使用：输入框输入时防抖
+const inputHandler = debounce((e) => {
+    console.log('发送搜索请求:', e.target.value);
+}, 500);
+inputElement.addEventListener('input', inputHandler);
+```
+
+```javas
+//节流（Throttle）
+//在单位时间内，函数最多只执行一次（就像技能冷却）。
+//生活比喻：游戏里放技能有冷却时间，冷却期间按再多次也没用。
+//核心场景：滚动加载（scroll）、窗口 resize、按钮点击（防止重复提交）。
+function throttle(fn, delay = 300) {
+    let timer = null;
+    return function(...args) {
+        if (timer) return;  // 冷却中，直接忽略
+        timer = setTimeout(() => {
+            fn.apply(this, args);
+            timer = null;   // 冷却结束，允许下次执行
+        }, delay);
+    };
+}
+
+// 使用：滚动时节流
+const scrollHandler = throttle(() => {
+    console.log('滚动事件处理');
+}, 1000);
+window.addEventListener('scroll', scrollHandler);
+```
+
+防抖节流区别 ：一个是clearTimeout(timer);  // 清除上一次的定时器，重新计时
+
+一个是if (timer) return;  // 冷却中，直接忽略
+
+| 技术     | 核心代码逻辑                                   | 本质           |
+| :------- | :--------------------------------------------- | :------------- |
+| **防抖** | `clearTimeout(timer); timer = setTimeout(...)` | **重置计时器** |
+| **节流** | `if (timer) return; timer = setTimeout(...)`   | **锁住计时器** |
