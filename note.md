@@ -2491,3 +2491,99 @@ onKeyUp → 触发时执行的函数
 第三个参数 → 可选（once、passive、capture）
 ```
 
+
+
+
+
+
+
+```text
+//事件循环机制是什么？
+
+
+事件循环（Event Loop）是 JavaScript 实现“异步编程”的核心机制，
+让 JavaScript 能在单线程下处理异步任务（如网络请求、定时器），做到“不阻塞主线程”。
+
+
+一句话理解：
+事件循环就像一个“排队系统”——主线程先做同步任务，
+把异步任务放到队列里，等主线程空闲了再按顺序执行队列里的任务。
+
+
+JavaScript 为什么需要事件循环？
+JavaScript 是单线程语言（一次只能做一件事）
+如果遇到耗时的任务（如网络请求），等待它完成会阻塞页面
+事件循环让 JS 可以把耗时任务放到一边，先执行后面的代码，
+等任务完成了再回来处理结果
+
+
+执行顺序：先同步，后异步
+console.log('1. 开始')
+
+setTimeout(() => {
+    console.log('2. 定时器执行')
+}, 0)
+
+console.log('3. 结束')
+
+// 输出顺序：
+// 1. 开始
+// 3. 结束
+// 2. 定时器执行  ← 即使延迟是 0 毫秒，也是最后执行
+
+
+宏任务和微任务：
+微任务（先执行）  → Promise.then、process.nextTick、MutationObserver
+宏任务（后执行）  → setTimeout、setInterval、setImmediate、I/O 操作
+
+
+执行流程图：
+执行同步代码 → 清空微任务队列 → 取一个宏任务执行 → 清空微任务队列 → 取一个宏任务执行 ...
+
+
+代码示例：
+console.log('1. 同步代码')
+
+setTimeout(() => {
+    console.log('3. 宏任务：setTimeout')
+}, 0)
+
+Promise.resolve().then(() => {
+    console.log('2. 微任务：Promise.then')
+})
+
+console.log('4. 同步代码结束')
+
+// 输出顺序：
+// 1. 同步代码
+// 4. 同步代码结束
+// 2. 微任务：Promise.then  ← 微任务比宏任务先执行
+// 3. 宏任务：setTimeout
+
+
+在 Vue 中的实际应用：
+// 1. 修改数据
+count.value = 10
+
+// 2. 立即读取 DOM → 还是旧值
+console.log(document.querySelector('.count').textContent)  // 0
+
+// 3. 等 DOM 更新后再读取
+await nextTick()
+console.log(document.querySelector('.count').textContent)  // 10
+
+nextTick 就是利用微任务机制，在 DOM 更新后执行回调。
+
+
+总结：
+事件循环 = JavaScript 的异步执行机制
+
+规则：
+1. 先执行所有同步代码
+2. 执行所有微任务（Promise.then、nextTick）
+3. 执行一个宏任务（setTimeout）
+4. 重复 2 → 3
+
+记住：微任务先于宏任务执行！
+```
+
