@@ -2587,3 +2587,100 @@ nextTick 就是利用微任务机制，在 DOM 更新后执行回调。
 记住：微任务先于宏任务执行！
 ```
 
+```text
+RESTful API 是什么？
+
+
+RESTful API 是一种 API 设计规范（风格），
+它利用 HTTP 协议本身的方法（GET、POST、PUT、DELETE）来表示对资源的操作，
+使得接口简洁、清晰、易于理解。
+
+
+一句话理解：
+RESTful API 就是用 HTTP 的动词（GET/POST/PUT/DELETE）来操作资源（URL），
+就像对文件系统进行“增删改查”一样自然。
+
+
+核心概念：资源
+在 RESTful 架构中，一切都被视为资源（如用户、文章、订单），
+每个资源都有一个唯一的 URL 地址。
+
+资源举例：
+https://api.example.com/users          → 用户资源集合
+https://api.example.com/users/123      → 特定用户（ID为123）
+https://api.example.com/posts          → 文章资源集合
+https://api.example.com/orders/456     → 特定订单（ID为456）
+
+
+HTTP 方法对应操作：
+GET    → 获取资源（查） → GET /users/123      → 获取ID为123的用户
+POST   → 创建资源（增） → POST /users         → 创建一个新用户
+PUT    → 更新整个资源（改）→ PUT /users/123   → 完全替换ID为123的用户
+PATCH  → 更新部分资源（改）→ PATCH /users/123 → 只更新用户的邮箱
+DELETE → 删除资源（删） → DELETE /users/123   → 删除ID为123的用户
+
+
+你的项目中的实际例子：
+GET    /api/foods          → 获取美食列表
+GET    /api/foods/1        → 获取ID为1的美食详情
+POST   /api/foods          → 创建一篇新的美食文章
+PUT    /api/foods/1        → 更新ID为1的美食文章全部信息
+PATCH  /api/foods/1        → 更新ID为1的美食文章部分字段（如浏览量）
+DELETE /api/foods/1        → 删除ID为1的美食文章
+
+GET    /api/categories     → 获取所有美食分类
+POST   /api/comments       → 创建一条新评论
+GET    /api/foods/1/comments → 获取ID为1的美食的所有评论
+
+
+RESTful API 的主要特点：
+资源导向    → 使用名词（如 /users）而非动词（如 /getUsers）设计 URL
+方法语义化  → 通过 HTTP 方法表达操作意图，URL 只表示资源位置
+无状态      → 每个请求都包含完整信息，服务器不保存客户端状态
+统一接口    → 规范化的请求和响应格式（如 JSON）
+
+
+非 RESTful 与 RESTful 对比：
+❌ 非 RESTful 风格（RPC风格）
+GET    /getUserById?id=123
+POST   /createUser
+POST   /updateUser
+POST   /deleteUser?id=123
+
+✅ RESTful 风格
+GET    /users/123
+POST   /users
+PUT    /users/123
+DELETE /users/123
+
+
+在 Spring Boot 中的实现：
+@RestController
+@RequestMapping("/api/foods")
+public class FoodController {
+
+    @GetMapping              // GET 请求 → 查询列表
+    public Result list() { ... }
+
+    @GetMapping("/{id}")     // GET 请求 → 查询单个
+    public Result detail(@PathVariable Long id) { ... }
+
+    @PostMapping             // POST 请求 → 新增
+    public Result save(@RequestBody Food food) { ... }
+
+    @PutMapping("/{id}")     // PUT 请求 → 全量更新
+    public Result update(@PathVariable Long id, @RequestBody Food food) { ... }
+
+    @DeleteMapping("/{id}")  // DELETE 请求 → 删除
+    public Result delete(@PathVariable Long id) { ... }
+}
+
+
+总结：
+RESTful API = 用 HTTP 方法（GET/POST/PUT/DELETE）操作资源（URL）
+
+URL 用名词表示资源
+方法表示操作（增删改查）
+让接口设计更清晰、更规范
+```
+
