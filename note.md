@@ -87,11 +87,47 @@ git config --global http.proxy http://127.0.0.1:7897
 git config --global https.proxy http://127.0.0.1:7897
 ```
 
+| 库             | 是否自带                 | 安装命令                   | 说明                      |
+| :------------- | :----------------------- | :------------------------- | :------------------------ |
+| **Vue**        | ✅ 自带（项目创建时已有） | 不需要安装                 | 核心框架                  |
+| **Vue Router** | ❌ 需要安装               | `npm install vue-router@4` | 路由管理                  |
+| **Vuex**       | ❌ 需要安装               | `npm install vuex@4`       | 状态管理                  |
+| **Pinia**      | ❌ 需要安装               | `npm install pinia`        | Vuex 替代品（Vue 3 推荐） |
 
+| 分类         | 库名                 | 安装命令                                          | 说明                         |
+| :----------- | :------------------- | :------------------------------------------------ | :--------------------------- |
+| 核心框架     | Vue                  | 项目自带                                          | 核心框架                     |
+| 路由管理     | Vue Router           | `npm install vue-router@4`                        | Vue 3 路由管理               |
+| 状态管理     | Vuex                 | `npm install vuex@4`                              | Vue 3 状态管理               |
+| 状态管理     | Pinia                | `npm install pinia`                               | Vuex 替代品（Vue 3 推荐）    |
+| UI 组件库    | Element Plus         | `npm install element-plus`                        | Vue 3 最流行的 UI 组件库     |
+| UI 组件库    | Ant Design Vue       | `npm install ant-design-vue`                      | 阿里出品 UI 组件库           |
+| UI 组件库    | Vant                 | `npm install vant`                                | 移动端 UI 组件库             |
+| UI 组件库    | Naive UI             | `npm install naive-ui`                            | Vue 3 新锐 UI 库             |
+| HTTP 请求    | axios                | `npm install axios`                               | 最流行的 HTTP 请求库         |
+| CSS 框架     | Windi CSS            | `npm install vite-plugin-windicss`                | 原子化 CSS（按需生成）       |
+| CSS 框架     | Tailwind CSS         | `npm install -D tailwindcss postcss autoprefixer` | 最流行的原子化 CSS           |
+| CSS 预处理器 | Sass                 | `npm install -D sass`                             | CSS 预处理器                 |
+| CSS 预处理器 | Less                 | `npm install -D less`                             | CSS 预处理器                 |
+| 工具函数     | @vueuse/core         | `npm install @vueuse/core`                        | Vue 组合式工具函数集         |
+| 工具函数     | @vueuse/integrations | `npm install @vueuse/integrations`                | VueUse 扩展（含 useCookies） |
+| 工具函数     | lodash               | `npm install lodash`                              | JS 工具函数库                |
+| 工具函数     | dayjs                | `npm install dayjs`                               | 轻量级日期处理库             |
+| Cookie 操作  | js-cookie            | `npm install js-cookie`                           | Cookie 操作库                |
+| 数据可视化   | ECharts              | `npm install echarts`                             | 百度出品图表库               |
+| 数据可视化   | vue-echarts          | `npm install vue-echarts`                         | ECharts 的 Vue 3 封装        |
+| 开发辅助     | vite-plugin-windicss | `npm install vite-plugin-windicss`                | Vite 的 Windi CSS 插件       |
+| 开发辅助     | eslint               | `npm install -D eslint`                           | 代码检查                     |
+| 开发辅助     | prettier             | `npm install -D prettier`                         | 代码格式化                   |
+| 开发辅助     | mockjs               | `npm install mockjs`                              | 模拟数据生成                 |
 
-
-
-
+| 场景                     | 推荐安装                                          |
+| :----------------------- | :------------------------------------------------ |
+| **Vue 3 新项目（基础）** | Vue Router + Pinia + axios + Element Plus         |
+| **中后台管理系统**       | Element Plus + Windi CSS + ECharts + @vueuse/core |
+| **移动端 H5**            | Vant + axios + dayjs                              |
+| **数据可视化项目**       | ECharts + vue-echarts                             |
+| **工具函数**             | @vueuse/core + lodash + dayjs                     |
 
 
 
@@ -2940,3 +2976,10 @@ emit('abc', '你好')
 | **代码量**          | 更少                        | 更多                                           |
 | **官方推荐**        | ✅ Vue 3 官方推荐            | ⚠️ Vue 2 推荐，Vue 3 新项目推荐 Pinia           |
 | **模块化**          | 天然支持（每个 store 独立） | 需要手动拆分成 modules                         |
+
+| 对比           | `commit`                   | `dispatch`                                |
+| :------------- | :------------------------- | :---------------------------------------- |
+| **触发对象**   | 触发 `mutations`           | 触发 `actions`                            |
+| **是否异步**   | 同步（不能处理异步操作）   | 异步（可以处理 API 请求等）               |
+| **修改 state** | ✅ 直接修改                 | ❌ 不直接修改，通过 `commit` 触发 mutation |
+| **类比**       | 直接按遥控器上的“开灯”按钮 | 先喊一声“开灯”，让助手（action）去按按钮  |

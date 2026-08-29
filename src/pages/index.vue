@@ -4,7 +4,7 @@
 
         {{ $store.state.user.username }}
 
-        <el-button @click="logout">退出登录</el-button>
+        <el-button @click="handleLogout">退出登录</el-button>
 
 <!-- 
         <el-button @click="set">设置</el-button>
@@ -22,11 +22,26 @@
 
 <script setup>
 
-    import { showModal } from '~/composables/util';
+    import { logout } from '~/api/manager';
+    import { showModal,toast } from '~/composables/util';
+    import { useRouter } from 'vue-router';
+    import { useStore } from 'vuex';
 
-    function logout(){
+    const router = useRouter()
+    const store = useStore()
+
+    function handleLogout(){
         showModal("是否要退出登录?").then(res=>{
-            console.log("退出登录")
+            // console.log("退出登录")
+            logout()
+            .finally(()=>{
+                //移除cookie里的token //清除当前用户状态vuex
+                store.dispatch("logout")
+                //跳转回登录页
+                router.push("/login")
+                //提示退出登录成功
+                toast("退出登录成功")
+            })
         })
         .catch(
             //点击取消
