@@ -2,8 +2,9 @@
     <div>
         后台首页
 
-        {{ $store.state.user }}
+        {{ $store.state.user.username }}
 
+        <el-button @click="logout">退出登录</el-button>
 
 <!-- 
         <el-button @click="set">设置</el-button>
@@ -21,6 +22,16 @@
 
 <script setup>
 
+    import { showModal } from '~/composables/util';
+
+    function logout(){
+        showModal("是否要退出登录?").then(res=>{
+            console.log("退出登录")
+        })
+        .catch(
+            //点击取消
+        )
+    }
 
 
 

@@ -1,3 +1,7 @@
+【Vue3 + Vite 实战商城后台管理系统开发教程，elementplus，windicss，tailwind，前端，vue教程】https://www.bilibili.com/video/BV1Yt4y1p7Z9?p=20&vd_source=3424baa0ba17a6687e097f58c68731c5
+
+【Vue3+Vite+Element-Plus实战商城后台管理系统】https://www.bilibili.com/video/BV13f1zBLEo6?p=20&vd_source=3424baa0ba17a6687e097f58c68731c5
+
 
 
 
@@ -2737,3 +2741,202 @@ window.addEventListener('scroll', scrollHandler);
 | :------- | :--------------------------------------------- | :------------- |
 | **防抖** | `clearTimeout(timer); timer = setTimeout(...)` | **重置计时器** |
 | **节流** | `if (timer) return; timer = setTimeout(...)`   | **锁住计时器** |
+
+
+
+#### `window` 常用属性和方法
+
+| 属性/方法                               | 作用                                                 |
+| :-------------------------------------- | :--------------------------------------------------- |
+| `window.document`                       | 指向当前文档的 DOM 对象，用于操作 HTML               |
+| `window.location`                       | 获取或设置当前页面的 URL 信息（如 `location.href`）  |
+| `window.history`                        | 操作浏览器的会话历史（前进/后退）                    |
+| `window.navigator`                      | 获取浏览器和操作系统信息（如 `navigator.userAgent`） |
+| `window.screen`                         | 获取用户屏幕信息（如 `screen.width`）                |
+| `window.localStorage`                   | 本地存储，数据持久化                                 |
+| `window.sessionStorage`                 | 会话存储，页面关闭即清除                             |
+| `window.alert()`                        | 弹出警告框                                           |
+| `window.confirm()`                      | 弹出确认框                                           |
+| `window.setTimeout()` / `setInterval()` | 设置定时器                                           |
+| `window.addEventListener()`             | 添加事件监听器                                       |
+| `window.innerWidth` / `innerHeight`     | 浏览器窗口视口尺寸                                   |
+| `window.scrollY` / `scrollX`            | 当前页面滚动位置                                     |
+
+#### `window.document` 常用属性和方法
+
+| 属性/方法                     | 作用                         |
+| :---------------------------- | :--------------------------- |
+| `document.getElementById()`   | 通过 id 获取元素             |
+| `document.querySelector()`    | 通过 CSS 选择器获取元素      |
+| `document.querySelectorAll()` | 获取所有匹配元素（NodeList） |
+| `document.createElement()`    | 创建新元素节点               |
+| `document.createTextNode()`   | 创建文本节点                 |
+| `document.body`               | 页面的 `<body>` 元素         |
+| `document.head`               | 页面的 `<head>` 元素         |
+| `document.title`              | 获取或设置页面标题           |
+| `document.cookie`             | 获取或设置页面的 Cookie      |
+| `document.addEventListener()` | 在文档上绑定事件             |
+
+
+
+
+
+```text
+//Vue3：父子组件通信
+
+一、props：父组件传给子组件
+
+父组件 Parento.vue：
+
+<template>
+    <div>
+        <h2>父组件</h2>
+
+        <!-- props：父传子 -->
+        <Childreno
+            :name="name"
+            @message="handleMessage"
+        />
+
+        <p>父组件收到的消息：{{ message }}</p>
+    </div>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+import Childreno from './Childreno.vue'
+
+const name = ref('张三')
+
+const message = ref('还没有收到消息')
+
+function handleMessage(msg) {
+    message.value = msg
+}
+</script>
+
+
+子组件 Childreno.vue：
+
+<template>
+    <div>
+        <h3>子组件</h3>
+
+        <!-- 接收父组件传来的 name -->
+        <p>父组件传来的名字：{{ name }}</p>
+
+        <button @click="sendMessage">
+            告诉父组件
+        </button>
+    </div>
+</template>
+
+<script setup>
+// 接收父组件的数据
+const props = defineProps({
+    name: String
+})
+
+// 定义一个 message 事件
+const emit = defineEmits(['message'])
+
+// 点击按钮后执行
+function sendMessage() {
+    emit('message', '你好，我是子组件！')
+}
+</script>
+
+
+二、整个过程
+
+              Parento.vue
+               父组件
+                  │
+                  │ props
+                  │ :name="name"
+                  ↓
+          Childreno.vue
+               子组件
+                  │
+                  │ emit
+                  │ emit('message', '你好')
+                  ↓
+              Parento.vue
+               父组件
+
+
+三、简单理解
+
+props：父组件把数据给子组件
+
+emit：子组件把消息告诉父组件
+
+
+四、代码对应关系
+
+父组件：
+
+const name = ref('张三')
+
+<Childreno :name="name" />
+
+        ↓ props
+
+子组件：
+
+const props = defineProps({
+    name: String
+})
+
+接收到：
+
+props.name
+
+
+子组件：
+
+emit('message', '你好')
+
+        ↓ emit
+
+父组件：
+
+<Childreno @message="handleMessage" />
+
+        ↓
+
+function handleMessage(msg) {
+    message.value = msg
+}
+
+
+五、注意
+
+name、message、handleMessage 都不是 Vue 强制规定的名字，可以自己修改。
+
+例如：
+
+:name="name"
+可以改成：
+
+:username="name"
+
+message 也可以改成：
+
+emit('abc', '你好')
+
+父组件：
+
+@abc="handleMessage"
+
+只要父子组件中的事件名称对应即可。
+```
+
+| 对比                | **Pinia**                   | **Vuex**                                       |
+| :------------------ | :-------------------------- | :--------------------------------------------- |
+| **适用 Vue 版本**   | Vue 3 专属                  | Vue 2 / Vue 3 都支持                           |
+| **API 复杂度**      | 简单直观，学习曲线平缓      | 概念较多（state、mutations、actions、getters） |
+| **TypeScript 支持** | 原生完美支持                | 需要额外配置                                   |
+| **代码量**          | 更少                        | 更多                                           |
+| **官方推荐**        | ✅ Vue 3 官方推荐            | ⚠️ Vue 2 推荐，Vue 3 新项目推荐 Pinia           |
+| **模块化**          | 天然支持（每个 store 独立） | 需要手动拆分成 modules                         |
