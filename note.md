@@ -46,6 +46,10 @@ https://element-plus.org/zh-CN/component/notification.html#%E4%B8%8D%E5%90%8C%E7
 
 
 
+[Get Started | VueUse](https://vueuse.org/guide/)
+
+
+
 
 
 ```text
@@ -59,6 +63,8 @@ npm i universal-cookie@^7
 npm install vuex@next --save
 
 npm i nprogress
+
+npm i @vueuse/core
 ```
 
 
@@ -3334,4 +3340,58 @@ import { useRouter } from 'vue-router'
 
 
 
+
+| 用法                    | 作用                                  | 示例                         |
+| :---------------------- | :------------------------------------ | :--------------------------- |
+| `location.href`         | 获取或设置当前页面的完整 URL          | `console.log(location.href)` |
+| `location.href = '...'` | 跳转到新页面                          | `location.href = '/login'`   |
+| `location.reload()`     | 刷新当前页面                          | `location.reload()`          |
+| `location.pathname`     | 获取路径部分（`/` 后的内容）          | `/user/profile`              |
+| `location.search`       | 获取 URL 中的查询参数（`?` 后的内容） | `?id=123`                    |
+| `location.hash`         | 获取 URL 中的锚点（`#` 后的内容）     | `#section1`                  |
+| `location.replace()`    | 替换当前页面（无法后退）              | `location.replace('/')`      |
+| `location.assign()`     | 加载新页面（可后退）                  | `location.assign('/about')`  |
+
+```text
+window（浏览器窗口，最顶层）
+├── document（当前网页的 DOM）
+├── location（地址栏信息）
+├── history（浏览记录）
+├── navigator（浏览器信息）
+└── ...（其他属性和方法）
+```
+
+| 对象            | 作用                                     | 举例                        |
+| :-------------- | :--------------------------------------- | :-------------------------- |
+| **`window`**    | 浏览器**窗口**本身，是所有对象的顶层容器 | `window.alert()`            |
+| **`document`**  | 当前**网页内容**（DOM 树），操作页面元素 | `document.getElementById()` |
+| **`location`**  | 当前**地址栏信息**，控制页面跳转         | `location.href`             |
+| **`history`**   | 浏览**历史记录**，前进/后退              | `history.back()`            |
+| **`navigator`** | **浏览器信息**（版本、操作系统）         | `navigator.userAgent`       |
+
+| 方法                                   | 为什么是“单数”                                               | 为什么是“复数”                                               |
+| :------------------------------------- | :----------------------------------------------------------- | :----------------------------------------------------------- |
+| window.document.getElementById         | **ID 是唯一的**，一个页面只能有一个 `id`，所以返回**单个元素** | —                                                            |
+| window.document.getElementsByClassName | —                                                            | **类名可以重复**，多个元素可以有同一个 `class`，所以返回**元素集合** |
+
+
+
+
+
+
+
+```text
+// 方式1：解构赋值（你写的）✅
+const { isFullscreen, enter, exit, toggle } = useFullscreen()
+enter()  // ✅ 直接调用
+exit()   // ✅ 直接调用
+
+// 方式2：不解构（等价写法）✅
+const fullscreen = useFullscreen()
+fullscreen.enter()  // ✅ 通过对象调用
+fullscreen.exit()   // ✅ 通过对象调用
+
+// 方式3：你问的写法 ❌
+useFullscreen().enter()  // ❌ 这样会创建多个实例，且不推荐
+```
 
