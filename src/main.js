@@ -18,8 +18,11 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
 }
 
-import 'virtual:windi.css'
 
-import "./permisssion"
+import 'virtual:windi.css'//开发服务器启动,在内存中实时生成并注入的样式表    //由 Vite 插件在开发时动态生成的虚拟文件
+
+import "./permisssion"//路由守卫（权限控制）
+
+import "nprogress/nprogress.css"//全局loading进度条
 
 app.mount('#app')

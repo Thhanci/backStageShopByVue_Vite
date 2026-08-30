@@ -42,6 +42,12 @@ https://element-plus.org/zh-CN/component/notification.html#%E4%B8%8D%E5%90%8C%E7
 
 
 
+[nprogress - npm](https://www.npmjs.com/package/nprogress)
+
+
+
+
+
 ```text
 npm install @element-plus/icons-vue
 
@@ -51,6 +57,8 @@ npm i @vueuse/integrations
 npm i universal-cookie@^7
 
 npm install vuex@next --save
+
+npm i nprogress
 ```
 
 
@@ -86,6 +94,12 @@ git config --global --get https.proxy
 git config --global http.proxy http://127.0.0.1:7897
 git config --global https.proxy http://127.0.0.1:7897
 ```
+
+
+
+![image-20260830184139413](./note.assets/image-20260830184139413.png)
+
+
 
 | 库             | 是否自带                 | 安装命令                   | 说明                      |
 | :------------- | :----------------------- | :------------------------- | :------------------------ |
@@ -2983,3 +2997,341 @@ emit('abc', '你好')
 | **是否异步**   | 同步（不能处理异步操作）   | 异步（可以处理 API 请求等）               |
 | **修改 state** | ✅ 直接修改                 | ❌ 不直接修改，通过 `commit` 触发 mutation |
 | **类比**       | 直接按遥控器上的“开灯”按钮 | 先喊一声“开灯”，让助手（action）去按按钮  |
+
+```text
+//   /api请求流程
+
+1. 用户在浏览器输入：http://localhost:5173/#/login
+   ↓
+2. Vue Router 加载 Login.vue 页面
+   ↓
+3. 用户输入用户名密码，点击登录
+   ↓
+4. 前端发起接口请求：axios.post('/api/admin/login', { username, password })
+   ↓
+5. Vite 代理拦截（匹配 /api）→ rewrite 去掉 /api → 转发到 http://ceshi13.dishait.cn/admin/login
+   ↓
+6. 后端验证成功，返回 token
+   ↓
+7. 前端存储 token，路由跳转：router.push('/')
+   ↓
+8. Vue Router 加载首页组件，浏览器地址变为：http://localhost:5173/#/
+   ↓
+9. 用户点击“退出登录”
+   ↓
+10. 前端发起接口请求：axios.post('/api/admin/logout')
+    ↓
+11. Vite 代理拦截（匹配 /api）→ rewrite 去掉 /api → 转发到 http://ceshi13.dishait.cn/admin/logout
+    ↓
+12. 后端处理退出，返回成功
+    ↓
+13. 前端清除 token，路由跳转：router.push('/login')
+    ↓
+14. Vue Router 加载 Login.vue 页面，浏览器地址变为：http://localhost:5173/#/login
+```
+
+
+
+
+
+
+
+## 在 CSS 选择器中，`#id` 的优先级比 `.class` 高，#id` 可以覆盖掉第三方库（NProgress）的默认样式。
+
+
+
+![img](./note.assets/file.webp)
+
+![img](./note.assets/file-1788079670933-3.webp)
+
+​              (                     #nprogress .bar       这是一个 CSS 组合选择器，选中 `id="nprogress"` 的元素内部的所有 `class="bar"` 的元素。
+
+**`!important` 是 CSS 中的一个“最高优先级”声明，告诉浏览器“这条样式规则必须生效，不管其他规则怎么定义”。**
+
+
+
+| 样式优先级       | 说明                                                       |
+| :--------------- | :--------------------------------------------------------- |
+| 正常样式         | 普通 CSS 规则，遵循优先级规则（`#id` > `.class` > `标签`） |
+| **`!important`** | **直接凌驾于所有规则之上，强制生效！**                     |
+
+| 选择器         | 写法     | 示例                        | 作用范围                 |
+| :------------- | :------- | :-------------------------- | :----------------------- |
+| **标签选择器** | `标签名` | `div { color: red; }`       | 选中页面上**所有**该标签 |
+| **类选择器**   | `.类名`  | `.title { color: blue; }`   | 选中所有带该类名的元素   |
+| **ID 选择器**  | `#id名`  | `#header { color: green; }` | 选中唯一 ID 的元素       |
+
+
+
+
+
+
+
+```text
+// Vue Router 路由配置
+const routes = [
+  {
+    path: '/',           // ← 配置选项（Vue Router 定义）
+    component: Home,     // ← 配置选项（Vue Router 定义）
+    meta: {              // ← 配置选项（Vue Router 定义）
+      title: '首页'      // ← 自定义字段（你定义的）
+    }
+  }
+]
+
+关键字/保留字 → 编程语言层面的，不能当变量名
+框架配置选项 → 框架层面的，按规则使用
+
+meta 是 Vue Router 提供的“配置选项”（容器属性名）
+meta.title 是你自己定义的“自定义字段”
+
+
+关键字是 JavaScript 语言已经使用的、有特殊语法功能的词。你不能用它们作为变量名、函数名或标识符。if var for typeof debugger
+保留字是 JavaScript 语言预留的，目前可能还没有使用，或者只在特定模式下使用，但未来可能会成为关键字。在严格模式下，你不能用它们作为变量名。 await yield public
+```
+
+
+
+
+
+
+
+```text
+//vue router
+<router-view> 怎么知道展示哪个 .vue 文件？
+
+
+<router-view> 是 Vue Router 的“占位符”，它本身不关心绑定了什么，
+而是根据当前浏览器 URL 路径，去匹配路由配置里的 path 和 component，
+然后把匹配到的组件渲染到 <router-view> 的位置。
+
+
+一句话理解：
+<router-view> 就像“舞台上的一个空位置”，
+Vue Router 根据当前 URL 地址去“剧本”（路由配置）里查找对应要上演的“剧目”（组件），
+然后把它放上舞台。
+
+
+完整流程：
+用户访问 URL: /login
+    ↓
+Vue Router 读取当前路径
+    ↓
+在路由配置表中查找 path: '/login'
+    ↓
+找到对应的 component: Login
+    ↓
+把 Login 组件渲染到 router-view 位置
+
+
+代码对应关系：
+1. 路由配置（告诉 Vue Router 哪个路径对应哪个组件）
+// router/index.js
+const routes = [
+  { path: '/login', component: Login },
+  { path: '/', component: Home }
+]
+
+
+2. 在 App.vue 中放置 router-view
+<template>
+  <div id="app">
+    <router-view></router-view>
+  </div>
+</template>
+
+
+3. 用户访问不同 URL 时：
+/login → 渲染 Login.vue
+/      → 渲染 Home.vue
+
+
+router-view 的“绑定”机制：
+不是传统意义上的 v-bind 绑定，
+而是通过 Vue Router 内部的响应式系统自动关联。
+Vue Router 监听 URL 变化 → 更新当前匹配的组件 → 自动渲染到 router-view
+
+
+命名视图（多个 router-view）：
+<router-view name="header"></router-view>
+<router-view></router-view>
+<router-view name="footer"></router-view>
+
+对应路由配置：
+{
+  path: '/',
+  components: {
+    default: Home,
+    header: Header,
+    footer: Footer
+  }
+}
+
+
+总结：
+router-view 根据 URL 自动渲染对应的组件
+
+你只需要做两件事：
+1. 在 router/index.js 里配置 path → component 的映射
+2. 在 App.vue 里放 <router-view>
+```
+
+| 布局方式  | display 值         | 特点                         | 适用场景                               |
+| --------- | ------------------ | ---------------------------- | -------------------------------------- |
+| 默认流    | block / inline     | 块级独占一行，行内并排       | 文章、文本内容                         |
+| Flex 布局 | flex / inline-flex | 一维布局（行或列），对齐强大 | 导航栏、居中、组件排列                 |
+| Grid 布局 | grid / inline-grid | 二维布局（行和列），整体结构 | 页面大结构、相册                       |
+| 定位布局  | position           | 脱离文档流，自由定位         | 弹窗、悬浮按钮、吸顶导航               |
+| 表格布局  | table / table-cell | 类似 HTML 表格               | 旧版表单对齐（不推荐）                 |
+| 浮动布局  | float              | 文字环绕元素                 | 文字环绕图片（不推荐，已被 Flex 取代） |
+
+
+
+
+
+| 写法        | 含义               | 说明                             |
+| :---------- | :----------------- | :------------------------------- |
+| `$store`    | Vuex 的 store 实例 | Vue 内置，用于访问状态管理       |
+| `$router`   | Vue Router 实例    | Vue 内置，用于路由跳转           |
+| `$route`    | 当前路由信息       | Vue 内置，用于获取当前路由参数   |
+| `$refs`     | DOM 引用集合       | Vue 内置，用于获取元素或组件实例 |
+| `$emit`     | 触发父组件事件     | Vue 内置，子组件向父组件传值     |
+| `$nextTick` | DOM 更新后执行     | Vue 内置，等待 DOM 渲染完成      |
+
+
+
+
+
+```text
+{} 和 {{}} 的区别与使用场景
+
+
+一句话理解：
+{} = 在 JS 代码里“存数据”
+{{}} = 在模板里“显示数据”
+
+
+一、什么时候用 {}？
+
+{} 是 JavaScript 语法，用在 script 标签中，表示一个对象。
+
+// 在 JS 代码里用 {} 定义对象
+const user = { name: '张三', age: 18 }
+
+// 在函数参数里用 {} 解构
+function login({ username, password }) { ... }
+
+// 在 import 中用 {} 导入命名导出
+import { useRouter } from 'vue-router'
+
+
+二、什么时候用 {{}}？
+
+{{}} 是 Vue 模板语法，用在 template 中，把 JS 表达式的值显示在页面上。
+
+<p>{{ user.name }}</p>
+<p>{{ 1 + 1 }}</p>
+<p>{{ age >= 18 ? '成年' : '未成年' }}</p>
+
+
+三、容易混淆的地方
+
+1. Vue 指令中的 {}（在 :style 或 :class 中，{} 是对象，写在引号里面）
+<div :style="{ color: textColor, fontSize: size + 'px' }">内容</div>
+<div :class="{ active: isActive, 'text-red': hasError }">内容</div>
+
+2. v-for 中的解构 {}
+<li v-for="({ id, name }, index) in users" :key="id">
+  {{ index }} - {{ name }}
+</li>
+
+
+四、快速判断口诀
+
+看位置：
+在 script 里 → 用 {}（JS 对象/解构/导入）
+在 template 里的引号中 → 用 {}（JS 表达式）
+在 template 里直接显示 → 用 {{}}（插值显示）
+
+简单记：
+{}   = 我在写代码
+{{}} = 我要显示数据
+
+
+五、总结
+
+场景                   写法       例子
+定义对象               {}         const user = { name: '张三' }
+解构赋值               {}         const { name } = user
+导入命名导出            {}         import { useRouter } from 'vue-router'
+动态绑定样式            {}（在 :style 里）  :style="{ color: 'red' }"
+条件绑定类名            {}（在 :class 里）  :class="{ active: true }"
+页面显示数据           {{}}       {{ user.name }}
+页面显示表达式         {{}}       {{ 1 + 1 }}
+页面显示三元运算       {{}}       {{ age >= 18 ? '成年' : '未成年' }}
+```
+
+
+
+
+
+
+
+
+
+
+
+```javascript
+.icon-btn{
+    @apply flex justify-center items-center;
+    width: 42px;
+    height: 64px;
+    cursor: pointer;
+}
+```
+
+
+
+### 常用 `cursor` 参数
+
+| 参数          | 样式          | 适用场景                         |
+| :------------ | :------------ | :------------------------------- |
+| `pointer`     | 👆 小手        | **点击**：按钮、链接、可点击元素 |
+| `default`     | ➡️ 默认箭头    | 普通文本、非交互元素             |
+| `text`        | I 形光标      | 可选中文字（输入框、段落）       |
+| `move`        | ✚ 十字箭头    | 可拖拽移动的元素                 |
+| `grab`        | ✋ 张开的手    | 可拖拽开始前（提示可抓取）       |
+| `grabbing`    | ✊ 握紧的手    | 拖拽进行中                       |
+| `wait`        | ⏳ 加载圈      | 等待中（如加载数据）             |
+| `progress`    | ⌛ 箭头+加载圈 | 正在执行但还能操作               |
+| `not-allowed` | 🚫 禁止符号    | 不可操作/禁用状态                |
+| `help`        | ❓ 问号        | 帮助信息                         |
+| `zoom-in`     | 🔍 放大镜+加号 | 可放大查看                       |
+| `zoom-out`    | 🔍 放大镜+减号 | 可缩小查看                       |
+| `crosshair`   | ✚ 十字线      | 精确选择（如画图工具）           |
+
+
+
+
+
+```text
+.icon-btn:hover{
+    @apply bg-indigo-600
+}
+```
+
+
+
+| 伪类        | 含义                 | 场景               |
+| :---------- | :------------------- | :----------------- |
+| `:hover`    | 鼠标悬停时           | 按钮变暗、菜单展开 |
+| `:active`   | 鼠标按下时（未松开） | 点击瞬间反馈       |
+| `:focus`    | 元素获得焦点时       | 输入框选中边框     |
+| `:visited`  | 链接被访问过后       | 链接颜色变化       |
+| `:link`     | 链接未被访问时       | 链接默认样式       |
+| `:disabled` | 元素被禁用时         | 禁用状态样式       |
+
+
+
+
+

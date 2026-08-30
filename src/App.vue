@@ -36,8 +36,15 @@
 
 
 <style>
-.btn{
+/* .btn{
   @apply inline bg-purple-500 text-indigo-50 px-4 py-2 rounded-full
     transition-all duration-3000 hover:(bg-green-300) focus:(ring-8 ring-blue-300);
+} */
+
+#nprogress .bar{
+  background-color: #000000!important;
+  height: 5px!important;
 }
+
+
 </style>
