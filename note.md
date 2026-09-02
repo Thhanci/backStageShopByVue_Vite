@@ -107,6 +107,17 @@ git config --global https.proxy http://127.0.0.1:7897
 
 
 
+```text
+【【城】为什么 AI 越聪明，写的代码反而越不安全？| VibeCoding 安全分析 【B站AI创造公开赛】】https://www.bilibili.com/video/BV1YruC6iEKN?vd_source=3424baa0ba17a6687e097f58c68731c5
+npm view react-codemorph
+```
+
+
+
+
+
+
+
 | 库             | 是否自带                 | 安装命令                   | 说明                      |
 | :------------- | :----------------------- | :------------------------- | :------------------------ |
 | **Vue**        | ✅ 自带（项目创建时已有） | 不需要安装                 | 核心框架                  |
@@ -3394,4 +3405,125 @@ fullscreen.exit()   // ✅ 通过对象调用
 // 方式3：你问的写法 ❌
 useFullscreen().enter()  // ❌ 这样会创建多个实例，且不推荐
 ```
+
+
+
+
+
+
+
+```text
+//有:value="text1"，下面script数据改动，上面跟着动，双向；
+//否则，下面数据改动了，不会绑定到上面，
+//用户每敲一个键	✅ 会（每次敲键都触发 @input）
+//✅ text2 这个变量确实变成了 '数据变了！'
+//❌ 但输入框不知道数据变了，因为没有 :value 来告诉它要更新
+//❌ @input 不会被触发（因为这是 JS 修改数据，不是用户输入）
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>对比 :value 的作用</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+</head>
+<body>
+
+<div id="app">
+
+
+
+  <div style="padding: 20px;">
+
+    <!-- 有 :value + 有 @input（完整双向绑定） -->
+    <div style="background: #e8f5e9; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+      <h4>✅ 有 :value + 有 @input</h4>
+      <input
+        :value="text1"
+        @input="text1 = $event.target.value"
+        style="width:300px; padding:10px; font-size:16px; border:2px solid #4CAF50; border-radius:8px; outline:none;"
+      />
+      <p>text1 = <strong>{{ text1 }}</strong></p>
+    </div>
+    
+    
+    
+    
+
+    <!-- 只有 @input，没有 :value -->
+    <div style="background: #ffebee; padding: 16px; border-radius: 8px;">
+      <h4>❌ 只有 @input，没有 :value</h4>
+      <input
+        @input="text2 = $event.target.value"
+        style="width:300px; padding:10px; font-size:16px; border:2px solid #f44336; border-radius:8px; outline:none;"
+      />
+      <p>text2 = <strong>{{ text2 }}</strong></p>
+    </div>
+    
+    
+    
+
+    <div style="margin-top: 20px; padding: 12px; background: #fff3cd; border-radius: 8px;">
+      <p style="margin: 0; font-size: 14px;">
+        ⏳ 2秒后会自动修改 text1 和 text2 的值，观察两个输入框的变化！
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const { createApp, ref, onMounted } = Vue
+
+createApp({
+  setup() {
+    const text1 = ref('初始值')
+    const text2 = ref('初始值')
+
+    onMounted(() => {
+      setTimeout(() => {
+        text1.value = '数据变了！'
+        text2.value = '数据变了！'
+        console.log('数据已修改')
+      }, 2000)
+    })
+
+    return { text1, text2 }
+  }
+}).mount('#app')
+</script>
+
+</body>
+</html>
+```
+
+
+
+| `type` 值 | 颜色   | 使用场景                         |
+| :-------- | :----- | :------------------------------- |
+| `primary` | 🔵 蓝色 | **主要操作**（提交、确定、登录） |
+| `success` | 🟢 绿色 | **成功操作**（保存、发布、完成） |
+| `warning` | 🟡 橙色 | **警告操作**（删除确认、修改）   |
+| `danger`  | 🔴 红色 | **危险操作**（删除、清空）       |
+| `info`    | ⚪ 灰色 | **信息提示**（查看详情、取消）   |
+| `text`    | 无背景 | **文字按钮**（链接式）           |
+
+
+
+
+
+```text
+.f-menu::-webkit-scrollbar {
+    width: 0px;
+}
+```
+
+| 写法 | 名称                     | 作用                   | 示例                                                         |
+| :--- | :----------------------- | :--------------------- | :----------------------------------------------------------- |
+| `:`  | 伪类（Pseudo-class）     | 选中元素的**特定状态** | `:hover`（悬停）、`:focus`（焦点）、`:first-child`（第一个子元素） |
+| `::` | 伪元素（Pseudo-element） | 选中元素的**特定部分** | `::before`（内容前）、`::after`（内容后）、`::-webkit-scrollbar`（滚动条） |
+
+
+
+
 

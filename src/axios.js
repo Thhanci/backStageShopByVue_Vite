@@ -3,7 +3,7 @@ import axios  from "axios";
 import { toast } from '~/composables/util'
 // import { useCookies } from '@vueuse/integrations/useCookies'
 import { getToken } from '~/composables/auth'
-
+import store from '~/store'
 
 const service = axios.create({
     baseURL:"/api"
@@ -43,7 +43,20 @@ service.interceptors.response.use(function (response) {
     //     duration:3000
     // })
 
-    toast(error.response.data.msg || "请求失败","error")
+    const msg = error.response.data.msg || "请求失败"
+
+    if(msg == "非法token，请先登录！"){
+      store
+      .dispatch("logout")
+      .finally(()=>{
+        location.reload()  //刷新页面
+      })
+    }
+
+
+
+    toast(msg,"error")
+    // toast(error.response.data.msg || "请求失败","error")
 
     return Promise.reject(error);
   });
