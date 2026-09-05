@@ -1806,3 +1806,238 @@ test()
 以上这些就是前端面试中最常被问到的“八股文”题，熟练掌握这些能应对大部分基础面试。
 ```
 
+
+
+
+
+```text
+防抖（Debounce）
+
+// ====== 防抖函数 ======
+function debounce(fn, delay) {
+    let timer = null;
+    return function(...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            fn.apply(this, args);
+        }, delay);
+    };
+}
+
+// ====== 使用示例：搜索框 ======
+const searchInput = document.getElementById('search');
+const handleSearch = debounce(function() {
+    console.log('搜索：', this.value);
+}, 500);
+searchInput.addEventListener('input', handleSearch);
+
+// ====== 精简版（直接写） ======
+let timer;
+input.addEventListener('input', function() {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+        console.log('搜索：', this.value);
+    }, 500);
+});
+
+// ====== 防抖应用场景 ======
+// 1. 搜索框输入
+input.addEventListener('input', debounce(search, 300));
+// 2. 窗口resize
+window.addEventListener('resize', debounce(calcLayout, 200));
+// 3. 按钮防连点
+button.addEventListener('click', debounce(saveData, 1000));
+
+
+节流（Throttle）
+
+// ====== 节流函数（时间戳版） ======
+function throttle(fn, delay) {
+    let lastTime = 0;
+    return function(...args) {
+        const now = Date.now();
+        if (now - lastTime >= delay) {
+            fn.apply(this, args);
+            lastTime = now;
+        }
+    };
+}
+
+// ====== 使用示例：滚动加载 ======
+const handleScroll = throttle(function() {
+    console.log('滚动位置：', window.scrollY);
+}, 200);
+window.addEventListener('scroll', handleScroll);
+
+// ====== 精简版（直接写） ======
+let lastTime = 0;
+window.addEventListener('scroll', function() {
+    const now = Date.now();
+    if (now - lastTime >= 200) {
+        console.log('滚动：', window.scrollY);
+        lastTime = now;
+    }
+});
+
+// ====== 节流应用场景 ======
+// 1. 滚动加载更多
+window.addEventListener('scroll', throttle(loadMore, 300));
+// 2. 鼠标移动
+canvas.addEventListener('mousemove', throttle(draw, 16));
+// 3. 游戏射击
+button.addEventListener('click', throttle(shoot, 500));
+
+
+完整HTML示例
+
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        input, button { padding: 10px; margin: 5px; }
+        .box { height: 2000px; background: linear-gradient(to bottom, #f0f0f0, #ccc); margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h2>防抖 vs 节流</h2>
+    <div>
+        <h3>防抖：搜索输入</h3>
+        <input id="search" placeholder="输入搜索关键词..." style="width:300px;">
+        <span id="debounceLog">等待输入...</span>
+    </div>
+    <div>
+        <h3>节流：点击加载</h3>
+        <button id="loadBtn">点击加载（节流 1s）</button>
+        <span id="throttleLog">点击次数：0</span>
+    </div>
+    <div class="box">滚动试试 ↓</div>
+
+    <script>
+        // 防抖
+        function debounce(fn, delay) {
+            let timer = null;
+            return function(...args) {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn.apply(this, args), delay);
+            };
+        }
+
+        const searchInput = document.getElementById('search');
+        const debounceLog = document.getElementById('debounceLog');
+
+        const handleSearch = debounce(function() {
+            debounceLog.textContent = '搜索：' + this.value;
+            debounceLog.style.color = '#0a0';
+        }, 500);
+
+        searchInput.addEventListener('input', handleSearch);
+        searchInput.addEventListener('input', function() {
+            debounceLog.textContent = '输入中...';
+            debounceLog.style.color = '#999';
+        });
+
+        // 节流
+        function throttle(fn, delay) {
+            let lastTime = 0;
+            return function(...args) {
+                const now = Date.now();
+                if (now - lastTime >= delay) {
+                    fn.apply(this, args);
+                    lastTime = now;
+                }
+            };
+        }
+
+        let clickCount = 0;
+        const loadBtn = document.getElementById('loadBtn');
+        const throttleLog = document.getElementById('throttleLog');
+
+        const handleClick = throttle(function() {
+            clickCount++;
+            throttleLog.textContent = '点击次数：' + clickCount + '（节流生效，1秒最多一次）';
+        }, 1000);
+
+        loadBtn.addEventListener('click', handleClick);
+
+        // 滚动节流
+        const handleScroll = throttle(function() {
+            console.log('滚动位置：', window.scrollY);
+        }, 200);
+        window.addEventListener('scroll', handleScroll);
+    </script>
+</body>
+</html>
+```
+
+```text
+防抖（Debounce）- 搜索框输入
+
+
+用户停止输入 500ms 后才发起请求，防止频繁请求
+
+
+代码：
+function debounce(fn, delay = 500) {
+  let timer = null
+  return function(...args) {
+     // ③ 每次调用时，先清除之前的定时器
+    // 如果之前有定时器在等待执行，就把它取消掉
+    // 这就是防抖的核心：清除上一次的，重新计时
+    clearTimeout(timer)
+    // ④ 创建新的定时器
+    // 等待 delay 毫秒后执行 fn(...args)
+    timer = setTimeout(() => {
+      fn(...args)
+    }, delay)
+  }
+}
+
+// 使用
+const search = debounce((keyword) => {
+  console.log('搜索:', keyword)
+}, 500)
+
+// 连续输入 "abc"：
+// 输入 a → 重置计时器
+// 输入 b → 重置计时器
+// 输入 c → 重置计时器
+// 停止输入 500ms 后 → 只输出一次 "搜索: abc"
+
+
+节流（Throttle）- 滚动加载
+
+
+每 500ms 最多执行一次，控制频率
+
+
+代码：
+function throttle(fn, delay = 500) {
+  let timer = null
+  return function(...args) {
+    if (timer) return
+    timer = setTimeout(() => {
+      fn(...args)
+      timer = null
+    }, delay)
+  }
+}
+
+// 使用
+const loadMore = throttle(() => {
+  console.log('加载更多数据')
+}, 500)
+
+// 连续滚动：
+// 第 0ms  → 执行 ✅
+// 第 100ms → 跳过 ❌
+// 第 300ms → 跳过 ❌
+// 第 500ms → 执行 ✅（间隔到了）
+// 第 600ms → 跳过 ❌
+
+
+区别：
+防抖 = 等你彻底停下来再执行（搜索框）
+节流 = 每隔一段时间执行一次（滚动加载）
+```
+
