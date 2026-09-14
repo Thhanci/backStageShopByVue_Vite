@@ -53,9 +53,33 @@ https://element-plus.org/zh-CN/component/notification.html#%E4%B8%8D%E5%90%8C%E7
 
 
 ```text
+//beginWithVite
+npm -v
+npm config get registry
+npm config set registry=https://registry.npmmirror.com
+npm init vite@latest shop-admin --template vue
+cd shop-admin
+npm install
+npm run dev
+```
+
+
+
+
+
+
+
+
+
+
+
+```text
 npm install @element-plus/icons-vue
+npm install element-plus
 
 npm install axios
+
+npm i -D vite-plugin-windicss windicss
 
 npm i @vueuse/integrations
 npm i universal-cookie@^7
@@ -65,6 +89,8 @@ npm install vuex@next --save
 npm i nprogress
 
 npm i @vueuse/core
+
+npm install three
 ```
 
 
@@ -3526,4 +3552,362 @@ createApp({
 
 
 **`z-index: 100` 是 CSS 中用来控制元素“上下堆叠顺序”的属性，值越大，元素显示在越上面。**
+
+
+
+
+
+
+
+
+
+
+
+
+
+![QQ_1788686816999](./note.assets/QQ_1788686816999.png)
+
+```javascript
+消除白线  #app的样式改了就行
+白线来自npm create vite@latest my-app --template vue
+E:\front-end\vueVite\SimpleLoginInterface\src\style.css
+在main.js里 // import './style.css'   // ← 注释掉这行
+html, body, #app {
+    width: 100%;           /* 宽度撑满 */
+    min-height: 100vh;     /* 高度至少占满视口 */
+    margin: 0;             /* 去掉 body 默认边距 */
+    padding: 0;            /* 去掉任何默认内边距 */
+}
+
+
+白线来源：
+1. body 默认 margin: 8px（产生四周空白）
+2. #app 没有高度，底部没有填满（露出 body 背景）
+
+你的修复：
+html, body, #app { min-height: 100vh; margin: 0; padding: 0; }
+→ 白线消失 ✅
+```
+
+默认情况下，堆叠顺序是：
+
+1. 元素背景（最底层）
+2. `::before`
+3. 元素内容
+4. `::after`（最顶层）
+
+所以 `::after` 默认会在 `::before` **上面**。
+
+
+
+
+
+
+
+
+
+```javascript
+import { lo } from 'element-plus/es/locales.mjs'
+import { createStore } from 'vuex'
+import { login,getinfo} from '~/api/manager'
+import{
+    setToken,
+    removeToken
+} from '~/composables/auth'
+import { logout } from '../api/manager'
+// 创建一个新的 store 实例
+const store = createStore({
+  state () {
+    return {
+      //用户信息
+      user:{}
+    }
+  },
+  mutations: {
+    //记录用户信息
+    SET_USERINFO(state,user){   //这是一个 mutation 的常量名称，不是普通数据。
+        state.user=user
+    }
+  },
+  actions:{
+    //登录
+    login({commit},{username,password}){  // ← commit 从 Pinia/Vuex 自动传进来  //commit是 Pinia（或 Vuex）在调用 actions 时自动传进来的一个函数，用于触发 mutations 来修改 state 数据。
+      return new Promise((resolve,reject)=>{
+        login(username,password).then(res=>{
+          setToken(res.token)
+
+          resolve(res)
+        }).catch(err=>reject(err))
+      })
+    },
+
+    //获取当前用户信息
+    getinfo({commit}){  
+      return new Promise((resolve,reject)=>{
+        getinfo().then(res=>{
+          commit("SET_USERINFO",res)
+          resolve(res)
+        }).catch(err=>reject(err))
+      })
+    },
+
+    //退出登录
+    logout({commit}){
+      //移除cookie里的token
+      removeToken()
+      //清除当前用户状态vuex
+      commit("SET_USERINFO",{})
+    }
+
+
+
+  }
+})
+
+export default store
+```
+
+
+
+![QQ_1789391196973](./note.assets/QQ_1789391196973.png)
+
+
+
+```javascript
+import Vue from 'vue'
+import Vuex from 'vuex'
+import axios from 'axios'
+
+Vue.use(Vuex)
+
+export default new Vuex.Store({
+    //共享数据
+    state: {
+        name: '未登录游客',
+    },
+    getters: {
+    },
+    //修改共享数据只能通过mutation实现，必须是同步操作
+    mutations: {
+        setName(state, name) {
+            state.name = name
+        }
+    },
+    //通过actions可以调用到mutations，在actions中可以进行异步操作
+    actions: {
+        axios({
+            url: '/api/admin/employee/login',
+            method: 'post',
+            data: {
+                username: 'admin',
+                password: '123456'
+            }
+        }).then(res => {
+            if(res.data.code == 1){
+                //异步请求后，需要修改共享数据
+                //在actions中调用mutation中定义的setName函数
+                context.commit('setName',res.data.data.name)
+            }
+        })
+    },
+    },
+    modules: {
+    }
+})
+
+
+
+
+
+
+
+
+App.vue
+<script>
+import HelloWorld from './components/HelloWorld.vue'
+
+export default {
+  name: 'App',
+  components: {
+    HelloWorld
+  },
+  methods: {
+    handleUpdate(){
+      //mutations中定义的函数不能直接调用，必须通过这种方式来调用
+      //setName为mutations中定义的函数名称，lisi为传递的参数
+      this.$store.commit('setName','lisi')
+    },
+    handleCallAction(){
+      //调用actions中定义的函数，setNameByAxios为函数名称
+      this.$store.dispatch('setNameByAxios')
+    }
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+
+
+! mutation_commit            action_dispatch
+this.$store.commit('setName','lisi')
+this.$store.dispatch('setNameByAxios')
+```
+
+
+
+```typescript
+//定义接口
+interface Cat {
+    name: string,
+    age?: number //当前属性为可选
+}
+
+//定义变量，并且指定为Cat类型
+const c1: Cat = {name: '小白', age: 1}
+const c2: Cat = {name: '小白'}
+//const c3: Cat = {name: '小白', age: 1, sex: ''}
+
+//定义一个类，使用class关键字
+class User {
+    name: string; //指定类中的属性
+    constructor(name: string){ //构造方法
+        this.name = name
+    }
+
+    //方法
+    study(){
+        console.log(this.name + '正在学习')
+    }
+}
+
+//使用User类型
+const user = new User('张三')
+```
+
+
+
+
+
+
+
+```typescript
+一、不写 constructor 会怎样？
+
+如果类里没有 constructor，JavaScript 会自动帮你生成一个空的构造函数。
+
+class User {
+    name: string = '默认名字';
+
+    study() {
+        console.log(this.name + '正在学习');
+    }
+}
+
+const user = new User();
+user.study();  // 默认名字正在学习
+
+
+二、什么时候需要写 constructor？
+
+只有需要"传参初始化属性"时，才需要写 constructor。
+
+
+不需要 constructor 的情况：
+
+// 1. 属性有默认值
+class User {
+    name: string = '张三';
+}
+const u = new User();  // name 自动就是 '张三'
+
+
+// 2. 只有方法，没有属性需要初始化
+class MathUtils {
+    add(a: number, b: number): number {
+        return a + b;
+    }
+}
+const m = new MathUtils();
+console.log(m.add(1, 2));  // 3
+
+
+需要 constructor 的情况：
+
+// 创建对象时，需要从外部传入值
+class User {
+    name: string;
+    age: number;
+
+    constructor(name: string, age: number) {
+        this.name = name;
+        this.age = age;
+    }
+}
+const u = new User('张三', 18);  // 必须传参数
+
+
+三、对比示例
+
+// 方式1：不写 constructor（属性直接赋默认值）
+class Cat1 {
+    name: string = '小白';
+    age: number = 1;
+}
+
+const c1 = new Cat1();
+console.log(c1.name);  // '小白'
+console.log(c1.age);   // 1
+
+
+// 方式2：写 constructor（创建时传参）
+class Cat2 {
+    name: string;
+    age: number;
+
+    constructor(name: string, age: number) {
+        this.name = name;
+        this.age = age;
+    }
+}
+
+const c2 = new Cat2('小黑', 2);
+console.log(c2.name);  // '小黑'
+console.log(c2.age);   // 2
+
+
+四、TypeScript 的简写（参数属性）
+
+TypeScript 提供了一种语法糖，可以在 constructor 参数里直接声明属性，
+省去重复写代码。
+
+
+// 传统写法（啰嗦）
+class User {
+    name: string;
+    age: number;
+
+    constructor(name: string, age: number) {
+        this.name = name;
+        this.age = age;
+    }
+}
+
+
+// TypeScript 简写（推荐）
+class User {
+    constructor(
+        public name: string,
+        public age: number
+    ) {}
+}
+
+// 效果完全一样，但代码更简洁
+```
 
